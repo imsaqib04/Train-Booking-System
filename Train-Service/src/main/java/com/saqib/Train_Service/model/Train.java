@@ -2,7 +2,7 @@ package com.saqib.Train_Service.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "trains")
@@ -10,45 +10,50 @@ public class Train {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
-    private String trainName;
+    private String name;
     private String source;
     private String destination;
-    private LocalDate travelDate;
-    private LocalTime departureTime;
+
+    private LocalDate date; // Travel date
+    private LocalDateTime departureTime;
+    private LocalDateTime arrivalTime;
+
+    private String trainClass;      // e.g., "Sleeper", "AC"
+    private int totalSeats;
     private int availableSeats;
-    private int totalSeats; // This keeps track of the total number of seats.
 
     public Train() {
     }
 
-    public Train(String trainName, String source, String destination,
-                 LocalDate travelDate, LocalTime departureTime, int totalSeats) {
-        this.trainName = trainName;
+    public Train(Long id, String name, String source, String destination, LocalDate date, LocalDateTime departureTime, LocalDateTime arrivalTime, String trainClass, int totalSeats, int availableSeats) {
+        this.id = id;
+        this.name = name;
         this.source = source;
         this.destination = destination;
-        this.travelDate = travelDate;
+        this.date = date;
         this.departureTime = departureTime;
+        this.arrivalTime = arrivalTime;
+        this.trainClass = trainClass;
         this.totalSeats = totalSeats;
-        this.availableSeats = totalSeats; // Initially, available seats should match total seats
+        this.availableSeats = availableSeats;
     }
 
-    // Getters and Setters
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public String getTrainName() {
-        return trainName;
+    public String getName() {
+        return name;
     }
 
-    public void setTrainName(String trainName) {
-        this.trainName = trainName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSource() {
@@ -67,20 +72,36 @@ public class Train {
         this.destination = destination;
     }
 
-    public LocalDate getTravelDate() {
-        return travelDate;
+    public LocalDate getDate() {
+        return date;
     }
 
-    public void setTravelDate(LocalDate travelDate) {
-        this.travelDate = travelDate;
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 
-    public LocalTime getDepartureTime() {
+    public LocalDateTime getDepartureTime() {
         return departureTime;
     }
 
-    public void setDepartureTime(LocalTime departureTime) {
+    public void setDepartureTime(LocalDateTime departureTime) {
         this.departureTime = departureTime;
+    }
+
+    public LocalDateTime getArrivalTime() {
+        return arrivalTime;
+    }
+
+    public void setArrivalTime(LocalDateTime arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    public String getTrainClass() {
+        return trainClass;
+    }
+
+    public void setTrainClass(String trainClass) {
+        this.trainClass = trainClass;
     }
 
     public int getTotalSeats() {
@@ -89,39 +110,14 @@ public class Train {
 
     public void setTotalSeats(int totalSeats) {
         this.totalSeats = totalSeats;
-        this.availableSeats = totalSeats; // Reset available seats when total seats are updated
     }
 
     public int getAvailableSeats() {
         return availableSeats;
     }
 
-    // Book seats and adjust available seats
-//    public boolean bookSeat(int numberOfSeats) {
-//        if (availableSeats >= numberOfSeats) {
-//            availableSeats -= numberOfSeats;
-//            return true;  // Booking successful
-//        } else {
-//            return false; // Not enough seats available
-//        }
-//    }
-    public boolean bookSeat(int numberOfSeats) {
-        if (numberOfSeats <= 0) {
-            throw new IllegalArgumentException("Number of seats to book must be positive.");
-        }
-        if (availableSeats >= numberOfSeats) {
-            availableSeats -= numberOfSeats;
-            return true;  // Booking successful
-        } else {
-            return false; // Not enough seats available
-        }
-    }
-
     public void setAvailableSeats(int availableSeats) {
-        if (availableSeats < 0) {
-            throw new IllegalArgumentException("Available seats cannot be negative.");
-        }
         this.availableSeats = availableSeats;
     }
-
 }
+
