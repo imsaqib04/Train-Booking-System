@@ -9,7 +9,6 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan(basePackages = "com.saqib")
 @EnableFeignClients
-@EnableDiscoveryClient
 public class BookingServiceApplication {
 
 	public static void main(String[] args) {

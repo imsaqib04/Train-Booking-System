@@ -2,17 +2,17 @@ package com.saqib.Booking_Service.dto;
 
 import lombok.Data;
 
-@Data
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+
 public class BookingRequest {
     private Long userId;
     private Long trainId;
-    private int numberOfSeats;
-
-    public BookingRequest(Long userId, Long trainId, int numberOfSeats) {
-        this.userId = userId;
-        this.trainId = trainId;
-        this.numberOfSeats = numberOfSeats;
-    }
+    private int SeatsBooked;
+    private String passengerName;
+    private String travelDate;
+    private LocalDateTime bookingDate;
 
     public Long getUserId() {
         return userId;
@@ -30,11 +30,35 @@ public class BookingRequest {
         this.trainId = trainId;
     }
 
-    public int getNumberOfSeats() {
-        return numberOfSeats;
+    public int getSeatsBooked() {
+        return SeatsBooked;
     }
 
-    public void setNumberOfSeats(int numberOfSeats) {
-        this.numberOfSeats = numberOfSeats;
+    public void setSeatsBooked(int seatsBooked) {
+        SeatsBooked = seatsBooked;
+    }
+
+    public String getTravelDate() {
+        return travelDate;
+    }
+
+    public void setTravelDate(String travelDate) {
+        this.travelDate = travelDate;
+    }
+
+    public LocalDateTime getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(LocalDateTime bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public String getPassengerName() {
+        return passengerName;
+    }
+
+    public void setPassengerName(String passengerName) {
+        this.passengerName = passengerName;
     }
 }

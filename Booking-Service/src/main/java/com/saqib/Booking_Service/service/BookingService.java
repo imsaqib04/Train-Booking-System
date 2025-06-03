@@ -2,11 +2,9 @@ package com.saqib.Booking_Service.service;
 
 import com.saqib.Booking_Service.BookingStatus;
 import com.saqib.Booking_Service.dto.BookingRequest;
-import com.saqib.Booking_Service.dto.Train;
 import com.saqib.Booking_Service.feign.TrainClient;
 import com.saqib.Booking_Service.model.Booking;
 import com.saqib.Booking_Service.repo.BookingRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -17,299 +15,144 @@ import java.util.Optional;
 @Service
 public class BookingService {
 
-    @Autowired
-    private BookingRepository bookingRepository;
+    private final BookingRepository bookingRepository;
+    private final TrainClient trainClient;
 
-    @Autowired
-    private TrainClient trainClient;
-
-    private static final int MAX_TRAIN_SEATS = 100;
-
-//    public Booking bookTicket(BookingRequest request) {
-//        if (request.getNumberOfSeats() < 1 || request.getNumberOfSeats() > 6) {
-//            throw new IllegalArgumentException("You can book between 1 to 6 seats only.");
-//        }
-//
-//        int availableSeats = getAvailableSeats(request.getTrainId());
-//
-//        Booking booking = new Booking();
-//        booking.setUserId(request.getUserId());
-//        booking.setTrainId(request.getTrainId());
-//        booking.setNumberOfSeats(request.getNumberOfSeats());
-//        booking.setBookingDate(LocalDate.now());
-//        booking.setTotalFare(calculateFare(request.getNumberOfSeats()));
-//
-//        if (availableSeats >= booking.getNumberOfSeats()) {
-//            booking.setStatus(BookingStatus.CONFIRMED);
-//        } else {
-//            booking.setStatus(BookingStatus.WAITING);
-//        }
-//
-//        return bookingRepository.save(booking);
-//    }
-
-//    public Booking createBooking(BookingRequest bookingRequest) {
-//        if (bookingRequest.getNumberOfSeats() <= 0) {
-//            throw new IllegalArgumentException("Number of seats must be greater than 0");
-//        }
-//
-//        Booking booking = new Booking();
-//        booking.setUserId(bookingRequest.getUserId());
-//        booking.setTrainId(bookingRequest.getTrainId());
-//        booking.setNumberOfSeats(bookingRequest.getNumberOfSeats());
-//        booking.setBookingDate(LocalDate.now());
-//        booking.setStatus(BookingStatus.CONFIRMED);
-//        booking.setTotalFare(calculateFare(bookingRequest.getNumberOfSeats()));
-//
-//        return bookingRepository.save(booking);
-//    }
-
-    public List<Booking> getBookingsByUserId(Long userId) {
-        return bookingRepository.findByUserId ( userId );
+    public BookingService(BookingRepository bookingRepository, TrainClient trainClient) {
+        this.bookingRepository = bookingRepository;
+        this.trainClient = trainClient;
     }
 
-    public String cancelBooking(Long bookingId) {
-        Optional<Booking> bookingOpt = bookingRepository.findById ( bookingId );
-        if (bookingOpt.isPresent ()) {
-            Booking booking = bookingOpt.get ();
-            booking.setStatus ( BookingStatus.CANCELLED );
-            bookingRepository.save ( booking );
-            return "Booking cancelled successfully.";
-        }
-        return "Booking not found.";
-    }
 
     public List<Booking> getAllBookings() {
-        return bookingRepository.findAll ();
+        return bookingRepository.findAll();
     }
 
-    private double calculateFare(int numberOfSeats) {
-        return numberOfSeats * 150.0;
+    public Optional<Booking> getBookingById(Long id) {
+        return bookingRepository.findById(id);
     }
-
-    public int getAvailableSeats(Long trainId) {
-        return trainClient.getAvailableSeats ( trainId );
-    }
-
-//    public Booking bookTicket(BookingRequest request) {
-//        if (request.getNumberOfSeats() < 1 || request.getNumberOfSeats() > 6) {
-//            throw new IllegalArgumentException("You can book between 1 to 6 seats only.");
-//        }
-//
-//        int availableSeats = getAvailableSeats(request.getTrainId());
-//
-//        Booking booking = new Booking();
-//        booking.setUserId(request.getUserId());
-//        booking.setTrainId(request.getTrainId());
-//        booking.setNumberOfSeats(request.getNumberOfSeats());
-//        booking.setBookingDate(LocalDate.now());
-//        booking.setTotalFare(calculateFare(request.getNumberOfSeats()));
-//
-//        if (availableSeats >= booking.getNumberOfSeats()) {
-//            booking.setStatus(BookingStatus.CONFIRMED);
-//        } else {
-//            booking.setStatus(BookingStatus.WAITING);
-//        }
-
-    // Save booking to DB
-//        Booking savedBooking = bookingRepository.save(booking);
-//
-//        // Fetch train details and attach to savedBooking (transient field)
-//        Train train = trainClient.getTrainById(booking.getTrainId());
-//        savedBooking.setTrain(train); // This works if `train` is marked @Transient in Booking entity
-//
-//        return savedBooking;
-//    }
-
-
-//    public Booking bookTicket(BookingRequest request) {
-//        if (request.getNumberOfSeats() < 1 || request.getNumberOfSeats() > 6) {
-//            throw new IllegalArgumentException("You can book between 1 to 6 seats only.");
-//        }
-//
-//        int availableSeats = getAvailableSeats(request.getTrainId());
-//
-//        // Check if there are enough seats available
-//        if (availableSeats < request.getNumberOfSeats()) {
-//            throw new IllegalArgumentException("Not enough available seats.");
-//        }
-//
-//        // Reduce available seats by the number of booked seats
-//        trainClient.updateAvailableSeats(request.getTrainId(), availableSeats - request.getNumberOfSeats());
-//
-//        Booking booking = new Booking();
-//        booking.setUserId(request.getUserId());
-//        booking.setTrainId(request.getTrainId());
-//        booking.setNumberOfSeats(request.getNumberOfSeats());
-//        booking.setBookingDate(LocalDate.now());
-//        booking.setTotalFare(calculateFare(request.getNumberOfSeats()));
-//
-//        booking.setStatus(availableSeats >= request.getNumberOfSeats() ? BookingStatus.CONFIRMED : BookingStatus.WAITING);
-//
-//        return bookingRepository.save(booking);
-//    }
-
-    //    public Booking bookTicket(BookingRequest request) {
-//        if (request.getNumberOfSeats() < 1 || request.getNumberOfSeats() > 6) {
-//            throw new IllegalArgumentException("You can book between 1 to 6 seats only.");
-//        }
-//
-//        int availableSeats = getAvailableSeats(request.getTrainId());
-//
-//        Booking booking = new Booking();
-//        booking.setUserId(request.getUserId());
-//        booking.setTrainId(request.getTrainId());
-//        booking.setNumberOfSeats(request.getNumberOfSeats());
-//        booking.setBookingDate(LocalDate.now());
-//        booking.setTotalFare(calculateFare(request.getNumberOfSeats()));
-//
-//        if (availableSeats >= booking.getNumberOfSeats()) {
-//            booking.setStatus(BookingStatus.CONFIRMED);
-//        } else {
-//            booking.setStatus(BookingStatus.WAITING);
-//        }
-//
-//        // Save booking first
-//        Booking savedBooking = bookingRepository.save(booking);
-//
-//        // Fetch train details after booking is saved
-//        Train train = trainClient.getTrainById(savedBooking.getTrainId());
-//
-//        // Set the train details in the booking
-//        savedBooking.setTrain(train);
-//
-//        // Save the updated booking with the train information
-//        return bookingRepository.save(savedBooking);
-//    }
-    public Booking bookTicket(BookingRequest request) {
-        if (request.getNumberOfSeats () < 1 || request.getNumberOfSeats () > 6) {
-            throw new IllegalArgumentException ( "You can book between 1 to 6 seats only." );
-        }
-
-        int availableSeats = getAvailableSeats ( request.getTrainId () );
-
-        Booking booking = new Booking ();
-        booking.setUserId ( request.getUserId () );
-        booking.setTrainId ( request.getTrainId () );
-        booking.setNumberOfSeats ( request.getNumberOfSeats () );
-        booking.setBookingDate ( LocalDate.now () );
-        booking.setTotalFare ( calculateFare ( request.getNumberOfSeats () ) );
-
-        if (availableSeats >= booking.getNumberOfSeats ()) {
-            booking.setStatus ( BookingStatus.CONFIRMED );
-        } else {
-            booking.setStatus ( BookingStatus.WAITING );
-        }
-
-        // Fetch train details before saving
-        Train train = trainClient.getTrainById ( request.getTrainId () );
-        booking.setTravleDate ( train.getTravelDate () ); // ✅ Set travel date from Train
-
-        // Save booking
-        Booking savedBooking = bookingRepository.save ( booking );
-
-        // Optional: attach train details to response (if marked @Transient)
-        savedBooking.setTrain ( train );
-
-        return savedBooking;
-    }
-//    public int getBookedSeatsByTrainId(Long trainId) {
-//        // Get all bookings for this train
-//        List<Booking> bookings = bookingRepository.findByTrainId(trainId);
-//
-//        // Sum up the booked seats
-//        int bookedSeats = bookings.stream()
-//                .mapToInt(Booking::getNumberOfSeats)
-//                .sum();
-//
-//        return bookedSeats;
-//    }
-
-    public int getBookedSeatsByTrainId(Long trainId) {
-        return bookingRepository.countByTrainId ( trainId ); // Assuming countByTrainId is implemented in your repository
-    }
-
     public Booking createBooking(BookingRequest request) {
-        Train train = trainClient.getTrainById ( request.getTrainId () );
+        Booking booking = new Booking();
 
-        int alreadyBookedSeats = bookingRepository.getTotalBookedSeatsByTrainId ( request.getTrainId () );
-        int availableSeats = train.getTotalSeats () - alreadyBookedSeats;
+        booking.setTrainId(request.getTrainId());
+//        booking.setPassengerName("User_" + request.getUserId()); // Example
+        booking.setPassengerName ( request.getPassengerName () );
+        booking.setSeatsBooked(request.getSeatsBooked ());
+        booking.setTravelDate( LocalDate.parse(request.getTravelDate()));
+        booking.setBookingDate(LocalDateTime.now());
 
-        Booking booking = new Booking ();
-        booking.setTrainId ( request.getTrainId () );
-        booking.setUserId ( request.getUserId () );
-        booking.setNumberOfSeats ( request.getNumberOfSeats () );
-        booking.setBookingDate ( LocalDate.from ( LocalDateTime.now () ) );
+        // Calculate fare
+        double farePerSeat = 100.0;
+        double totalFare = request.getSeatsBooked () * farePerSeat;
+        booking.setTotalFare(totalFare);
 
-        if (availableSeats >= request.getNumberOfSeats ()) {
-            booking.setStatus ( BookingStatus.CONFIRMED );
+        int totalSeats = trainClient.getTotalSeats(booking.getTrainId());
+        int confirmedSeats = bookingRepository.countByTrainIdAndStatus(booking.getTrainId(), BookingStatus.CONFIRMED);
+
+        if (confirmedSeats + booking.getSeatsBooked() > totalSeats) {
+            booking.setStatus(BookingStatus.WAITING);
+            booking.setWaitingListPosition(calculateWaitingListPosition(booking.getTrainId()));
         } else {
-            booking.setStatus ( BookingStatus.WAITING );
+            booking.setStatus(BookingStatus.CONFIRMED);
+            trainClient.updateAvailableSeats(booking.getTrainId(), booking.getSeatsBooked());
         }
 
-        return bookingRepository.save ( booking );
+        return bookingRepository.save(booking);
     }
 
-//    public Booking processBooking(BookingRequest bookingRequest) {
-//        // Fetch the train details using the trainId
-//        Train train = trainClient.getTrainById(bookingRequest.getTrainId());
-////        if (train == null) {
-////            throw new TrainNotFoundException("Train not found with ID: " + bookingRequest.getTrainId());
-////        }
-//
-//        // Get the number of already booked seats for the train
-//        int alreadyBookedSeats = bookingRepository.getTotalBookedSeatsByTrainId(bookingRequest.getTrainId());
-//        int availableSeats = train.getTotalSeats() - alreadyBookedSeats;
-//
-//        // Create a new booking entity
-//        Booking booking = new Booking();
-//        booking.setTrainId(bookingRequest.getTrainId());
-//        booking.setUserId(bookingRequest.getUserId());
-//        booking.setNumberOfSeats(bookingRequest.getNumberOfSeats());
-//        booking.setBookingDate(LocalDate.now());  // You can use the travelDate if necessary
-//
-//        // Check if there are enough available seats
-//        if (availableSeats >= bookingRequest.getNumberOfSeats()) {
-//            booking.setStatus(BookingStatus.CONFIRMED);
-//        } else {
-//            booking.setStatus(BookingStatus.WAITING);
+
+
+//    // Cancel booking and update status + cancelDate
+//    public String cancelBooking(Long bookingId) {
+//        Optional<Booking> optBooking = bookingRepository.findById(bookingId);
+//        if (optBooking.isEmpty()) {
+//            return "Booking cancellation failed: Booking not found.";
 //        }
 //
-//        // Save the booking and return the updated booking object
-//        return bookingRepository.save(booking);
+//        Booking booking = optBooking.get();
+//        if (booking.getStatus().equals(BookingStatus.CANCELLED.name())) {
+//            return "Booking is already cancelled.";
+//        }
+//
+//        booking.setStatus( BookingStatus.valueOf ( String.valueOf ( BookingStatus.CANCELLED ) ) );
+//        booking.setCancelDate(LocalDateTime.now());
+//        bookingRepository.save(booking);
+//        promoteWaitingList(booking.getTrainId());
+//
+//        // Optional: handle waiting list promotion here (not implemented now)
+//
+//        return "Booking cancelled successfully.";
 //    }
-    public Booking processBooking(BookingRequest bookingRequest) {
-    // Fetch the train details using the trainId
-    Train train = trainClient.getTrainById(bookingRequest.getTrainId());
-//    if (train == null) {
-//        throw new TrainNotFoundException("Train not found with ID: " + bookingRequest.getTrainId());
-//    }
 
-    // Get the number of already booked seats for the train
-    int alreadyBookedSeats = bookingRepository.getTotalBookedSeatsByTrainId(bookingRequest.getTrainId());
-    int availableSeats = train.getTotalSeats() - alreadyBookedSeats;
 
-    // Create a new booking entity
-    Booking booking = new Booking();
-    booking.setTrainId(bookingRequest.getTrainId());
-    booking.setUserId(bookingRequest.getUserId());
-    booking.setNumberOfSeats(bookingRequest.getNumberOfSeats());
-    booking.setBookingDate(LocalDate.now());  // You can use the travelDate if necessary
+    public Booking cancelBooking(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
 
-    // Logic to check if the booking can be confirmed, cancelled, or waiting
-    if (availableSeats >= bookingRequest.getNumberOfSeats()) {
-        // If enough seats are available, confirm the booking
-        booking.setStatus(BookingStatus.CONFIRMED);
-    } else if (availableSeats == 0) {
-        // If no seats are available, cancel the booking
-        booking.setStatus(BookingStatus.CANCELLED);
-    } else {
-        // If there are some seats available but not enough for the full request, set the status to WAITING
-        booking.setStatus(BookingStatus.WAITING);
+        if (booking.getStatus() == BookingStatus.CONFIRMED) {
+            // Step 1: Increase available seats in train service
+            trainClient.increaseAvailableSeats(booking.getTrainId(), booking.getSeatsBooked());
+
+            // Step 2: Update booking status
+            booking.setStatus(BookingStatus.CANCELLED);
+            booking.setCancelDate(LocalDateTime.now());
+
+            return bookingRepository.save(booking);
+        } else {
+            throw new RuntimeException("Only CONFIRMED bookings can be cancelled");
+        }
     }
 
-    // Save the booking and return the updated booking object
-    return bookingRepository.save(booking);
-}
 
+    private Integer calculateWaitingListPosition(Long trainId) {
+        Integer maxPosition = bookingRepository.findMaxWaitingListPositionByTrainId(trainId);
+        if (maxPosition == null) {
+            return 1;
+        }
+        return maxPosition + 1;
+    }
+    private void promoteWaitingList(Long trainId) {
+        int totalSeats = trainClient.getTotalSeats(trainId);
+        int confirmedSeats = bookingRepository.countByTrainIdAndStatus(trainId, BookingStatus.CONFIRMED);
+
+        // How many seats free now?
+        int freeSeats = totalSeats - confirmedSeats;
+
+        if (freeSeats <= 0) return; // no free seats to promote
+
+        // Get waiting list bookings ordered by waitingListPosition ascending
+        List<Booking> waitingList = bookingRepository.findByTrainIdAndStatusOrderByWaitingListPositionAsc(trainId, BookingStatus.WAITING);
+
+        for (Booking waitingBooking : waitingList) {
+            if (waitingBooking.getSeatsBooked() <= freeSeats) {
+                // Promote this booking
+                waitingBooking.setStatus( BookingStatus.valueOf ( String.valueOf ( BookingStatus.CONFIRMED ) ) );
+                waitingBooking.setWaitingListPosition(null);
+                waitingListPositionShift(waitingBooking); // optional to reorder waiting list after promotion
+                bookingRepository.save(waitingBooking);
+
+                freeSeats -= waitingBooking.getSeatsBooked();
+            } else {
+                break; // not enough seats for next waiting booking
+            }
+        }
+    }
+    private void waitingListPositionShift(Booking promotedBooking) {
+        Long trainId = promotedBooking.getTrainId();
+        Integer promotedPosition = promotedBooking.getWaitingListPosition();
+
+        if (promotedPosition == null) return; // already removed from waiting list
+
+        // Find all waiting bookings with position > promotedPosition
+        List<Booking> waitingListToShift = bookingRepository
+                .findByTrainIdAndStatusAndWaitingListPositionGreaterThanOrderByWaitingListPositionAsc(
+                        trainId, BookingStatus.WAITING, promotedPosition);
+
+        // Decrement waiting list position by 1 for all these bookings
+        for (Booking booking : waitingListToShift) {
+            booking.setWaitingListPosition(booking.getWaitingListPosition() - 1);
+        }
+
+        bookingRepository.saveAll(waitingListToShift);
+    }
 }
