@@ -9,8 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class BookingService {
@@ -35,7 +37,7 @@ public class BookingService {
         Booking booking = new Booking();
 
         booking.setTrainId(request.getTrainId());
-//        booking.setPassengerName("User_" + request.getUserId()); // Example
+        booking.setUserId ( request.getUserId () );
         booking.setPassengerName ( request.getPassengerName () );
         booking.setSeatsBooked(request.getSeatsBooked ());
         booking.setTravelDate( LocalDate.parse(request.getTravelDate()));
@@ -61,32 +63,8 @@ public class BookingService {
     }
 
 
-
-//    // Cancel booking and update status + cancelDate
-//    public String cancelBooking(Long bookingId) {
-//        Optional<Booking> optBooking = bookingRepository.findById(bookingId);
-//        if (optBooking.isEmpty()) {
-//            return "Booking cancellation failed: Booking not found.";
-//        }
-//
-//        Booking booking = optBooking.get();
-//        if (booking.getStatus().equals(BookingStatus.CANCELLED.name())) {
-//            return "Booking is already cancelled.";
-//        }
-//
-//        booking.setStatus( BookingStatus.valueOf ( String.valueOf ( BookingStatus.CANCELLED ) ) );
-//        booking.setCancelDate(LocalDateTime.now());
-//        bookingRepository.save(booking);
-//        promoteWaitingList(booking.getTrainId());
-//
-//        // Optional: handle waiting list promotion here (not implemented now)
-//
-//        return "Booking cancelled successfully.";
-//    }
-
-
-    public Booking cancelBooking(Long id) {
-        Booking booking = bookingRepository.findById(id)
+    public Booking cancelBooking(Long bookingId) {
+        Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         if (booking.getStatus() == BookingStatus.CONFIRMED) {
@@ -154,5 +132,12 @@ public class BookingService {
         }
 
         bookingRepository.saveAll(waitingListToShift);
+    }
+
+    public String generatePNR(Long trainId, Long userId) {
+        String timestamp = LocalDateTime.now().format( DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String randomPart = UUID.randomUUID().toString().substring(0, 4).toUpperCase();
+
+        return trainId + "-" + userId + "-" + timestamp + "-" + randomPart;
     }
 }

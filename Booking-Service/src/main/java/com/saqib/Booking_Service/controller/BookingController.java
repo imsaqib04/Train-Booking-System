@@ -4,6 +4,7 @@ import com.saqib.Booking_Service.BookingStatus;
 import com.saqib.Booking_Service.dto.BookingRequest;
 import com.saqib.Booking_Service.model.Booking;
 import com.saqib.Booking_Service.service.BookingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,11 +14,9 @@ import java.util.List;
 @RequestMapping("/booking")
 public class BookingController {
 
-    private final BookingService bookingService;
+    @Autowired
+    private BookingService bookingService;
 
-    public BookingController(BookingService bookingService) {
-        this.bookingService = bookingService;
-    }
 
     @PostMapping("/BookTicket")
     public ResponseEntity<Booking> createBooking(@RequestBody BookingRequest bookingRequest) {
@@ -53,5 +52,9 @@ public class BookingController {
             return ResponseEntity.badRequest ().body ( result );
         }
         return ResponseEntity.ok ( result );
+    }
+    @GetMapping("/generate")
+    public String generatePNR(@RequestParam Long trainId, @RequestParam Long userId) {
+        return bookingService.generatePNR(trainId, userId);
     }
 }
