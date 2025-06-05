@@ -33,4 +33,18 @@ public class UserProfileController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    // ✅ Update Profile
+    @PutMapping("/update/{userId}")
+    public ResponseEntity<UserProfile> updateProfile(@PathVariable String userId, @RequestBody UserProfile updatedProfile) {
+        return ResponseEntity.ok(service.updateProfile(userId, updatedProfile));
+    }
+
+    // ✅ Delete Profile
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<String> deleteProfile(@PathVariable String userId) {
+        service.deleteProfile(userId);
+        return ResponseEntity.ok("User profile deleted successfully");
+    }
+
 }

@@ -12,14 +12,32 @@ public class UserProfileService {
     private UserProfileRepository repo;
 
     public UserProfile saveProfile(UserProfile profile) {
-        return repo.save(profile);
+        return repo.save ( profile );
     }
 
     public UserProfile getProfileByUserId(String userId) {
-        return repo.findById(userId).orElseThrow();
+        return repo.findById ( userId ).orElseThrow ();
     }
 
     public UserProfile findByEmail(String email) {
-        return repo.findByEmail(email);
+        return repo.findByEmail ( email );
+    }
+
+    public UserProfile updateProfile(String userId, UserProfile updatedProfile) {
+        UserProfile existing = getProfileByUserId(userId);
+        existing.setName(updatedProfile.getName());
+        existing.setEmail(updatedProfile.getEmail());
+        existing.setContactNumber(updatedProfile.getContactNumber());
+        existing.setAddress(updatedProfile.getAddress());
+        existing.setGender(updatedProfile.getGender());
+        existing.setDob(updatedProfile.getDob());
+        existing.setAadhaar(updatedProfile.getAadhaar());
+        existing.setRole(updatedProfile.getRole());
+        return repo.save(existing);
+    }
+
+    public void deleteProfile(String userId) {
+        UserProfile profile = getProfileByUserId(userId);
+        repo.delete(profile);
     }
 }
