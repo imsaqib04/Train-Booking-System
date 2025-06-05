@@ -11,5 +11,5 @@ public interface TrainRepository extends JpaRepository<Train,Long> {
 
     List<Train> findBySourceAndDestination(String source, String destination);
 
-    List<Train> findByNameIgnoreCase(String name);
+    List<Train> findByTrainNameIgnoreCase(String trainName);
 }

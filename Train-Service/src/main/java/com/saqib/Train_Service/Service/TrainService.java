@@ -13,24 +13,20 @@ public class TrainService {
     @Autowired
     private TrainRepository trainRepository;
 
-//    public TrainService(TrainRepository trainRepository) {
-//        this.trainRepository = trainRepository;
-//    }
-
     public List<Train> getAllTrains() {
         return trainRepository.findAll();
     }
 
-    public Optional<Train> getTrainById(Long id) {
-        return trainRepository.findById(id);
+    public Optional<Train> getTrainById(Long trainId) {
+        return trainRepository.findById(trainId);
     }
 
     public Train createTrain(Train train) {
         return trainRepository.save(train);
     }
 
-    public Optional<Integer> getTotalSeats(Long id) {
-        return trainRepository.findById(id)
+    public Optional<Integer> getTotalSeats(Long trainId) {
+        return trainRepository.findById(trainId)
                 .map(Train::getTotalSeats);
     }
 
@@ -48,16 +44,16 @@ public class TrainService {
         trainRepository.save(train);
     }
 
-    public void increaseSeats(Long id, int seats) {
-        Train train = trainRepository.findById(id)
+    public void increaseSeats(Long trainId, int seats) {
+        Train train = trainRepository.findById(trainId)
                 .orElseThrow(() -> new RuntimeException("Train not found"));
         train.setAvailableSeats(train.getAvailableSeats() + seats);
         trainRepository.save(train);
     }
 
     //Search by train name (case-insensitive)
-    public List<Train> findByTrainName(String Name) {
-        return trainRepository.findByNameIgnoreCase(Name);
+    public List<Train> findByTrainName(String trainName) {
+        return trainRepository.findByTrainNameIgnoreCase(trainName);
     }
 
     // Add multiple trains
@@ -67,23 +63,23 @@ public class TrainService {
 
 
     // Delete train by ID with success flag
-    public boolean deleteTrain(Long id) {
-        if (trainRepository.existsById(id)) {
-            trainRepository.deleteById(id);
+    public boolean deleteTrain(Long trainId) {
+        if (trainRepository.existsById(trainId)) {
+            trainRepository.deleteById(trainId);
             return true;
         }
         return false;
     }
 
     // Update train details
-    public Train updateTrain(Long id, Train trainDetails) {
-        Train train = trainRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Train not found with ID: " + id));
+    public Train updateTrain(Long trainId, Train trainDetails) {
+        Train train = trainRepository.findById(trainId)
+                .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
 
-        train.setName (trainDetails.getName());
+        train.setTrainName (trainDetails.getTrainName ());
         train.setSource(trainDetails.getSource());
         train.setDestination(trainDetails.getDestination());
-        train.setDate ( trainDetails.getDate () );
+        train.setTravelDate ( trainDetails.getTravelDate () );
         train.setDepartureTime(trainDetails.getDepartureTime());
         train.setArrivalTime (trainDetails.getArrivalTime ());
         train.setTrainClass ( trainDetails.getTrainClass () );

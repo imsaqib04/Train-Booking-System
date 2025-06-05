@@ -12,11 +12,12 @@ public class Train {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private Long trainId;
+    private String trainName;
     private String source;
     private String destination;
 
-    private LocalDate date; // Travel date
+    private LocalDate travelDate;
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
 
@@ -27,12 +28,13 @@ public class Train {
     public Train() {
     }
 
-    public Train(Long id, String name, String source, String destination, LocalDate date, LocalDateTime departureTime, LocalDateTime arrivalTime, String trainClass, int totalSeats, int availableSeats) {
+    public Train(Long id,Long trainId, String trainName, String source, String destination, LocalDate travelDate, LocalDateTime departureTime, LocalDateTime arrivalTime, String trainClass, int totalSeats, int availableSeats) {
         this.id = id;
-        this.name = name;
+        this.trainId = trainId;
+        this.trainName = trainName;
         this.source = source;
         this.destination = destination;
-        this.date = date;
+        this.travelDate = travelDate;
         this.departureTime = departureTime;
         this.arrivalTime = arrivalTime;
         this.trainClass = trainClass;
@@ -48,12 +50,20 @@ public class Train {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Long getTrainId() {
+        return trainId;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTrainId(Long trainId) {
+        this.trainId = trainId;
+    }
+
+    public String getTrainName() {
+        return trainName;
+    }
+
+    public void setTrainName(String trainName) {
+        this.trainName = trainName;
     }
 
     public String getSource() {
@@ -72,12 +82,12 @@ public class Train {
         this.destination = destination;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDate getTravelDate() {
+        return travelDate;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setTravelDate(LocalDate travelDate) {
+        this.travelDate = travelDate;
     }
 
     public LocalDateTime getDepartureTime() {

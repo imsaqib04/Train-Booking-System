@@ -16,10 +16,6 @@ public class TrainController {
     @Autowired
     private TrainService trainService;
 
-//    public TrainController(TrainService trainService) {
-//        this.trainService = trainService;
-//    }
-
     // for get all trains
     @GetMapping("/getAll")
     public ResponseEntity<List<Train>> getAllTrains() {
@@ -27,9 +23,9 @@ public class TrainController {
     }
 
     // get Train by Train-id
-    @GetMapping("/{id}")
-    public ResponseEntity<Train> getTrain(@PathVariable Long id) {
-        return trainService.getTrainById ( id )
+    @GetMapping("/{trainId}")
+    public ResponseEntity<Train> getTrain(@PathVariable Long trainId) {
+        return trainService.getTrainById ( trainId)
                 .map ( ResponseEntity::ok )
                 .orElse ( ResponseEntity.notFound ().build () );
     }
@@ -47,21 +43,21 @@ public class TrainController {
     }
 
     // get total-seat in a train
-    @GetMapping("/{id}/total-seats")
-    public ResponseEntity<Integer> getTotalSeats(@PathVariable Long id) {
-        return trainService.getTotalSeats ( id )
+    @GetMapping("/{trainId}/total-seats")
+    public ResponseEntity<Integer> getTotalSeats(@PathVariable Long trainId) {
+        return trainService.getTotalSeats ( trainId )
                 .map ( ResponseEntity::ok )
                 .orElse ( ResponseEntity.notFound ().build () );
     }
 
     // get seats reduce matlab seats according to booking km hoti jayengi
-    @PutMapping("/{id}/update-seats")
+    @PutMapping("/{trainId}/update-seats")
     public ResponseEntity<Void> updateAvailableSeats(
-            @PathVariable Long id,
+            @PathVariable Long trainId,
             @RequestParam int seatsToReduce) {
 
         try {
-            trainService.updateAvailableSeats ( id, seatsToReduce );
+            trainService.updateAvailableSeats ( trainId, seatsToReduce );
             return ResponseEntity.ok ().build ();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest ().body ( null );
@@ -71,9 +67,9 @@ public class TrainController {
     }
 
     // when ticket cancel then seat increase automatically. according to its seat confirmed or not !
-    @PutMapping("/{id}/seats/increase")
-    public void increaseSeats(@PathVariable Long id, @RequestParam int seats) {
-        trainService.increaseSeats(id, seats);  // Delegate to service
+    @PutMapping("/{trainId}/seats/increase")
+    public void increaseSeats(@PathVariable Long trainId, @RequestParam int seats) {
+        trainService.increaseSeats(trainId, seats);  // Delegate to service
     }
 
 //     Search by train name
@@ -88,24 +84,24 @@ public class TrainController {
     }
 
     // Delete train by id
-    @DeleteMapping("/deleteTrain/{id}")
-    public ResponseEntity<String> deleteTrain(@PathVariable Long id) {
-        boolean deleted = trainService.deleteTrain ( id );
+    @DeleteMapping("/deleteTrain/{trainId}")
+    public ResponseEntity<String> deleteTrain(@PathVariable Long trainId) {
+        boolean deleted = trainService.deleteTrain ( trainId );
         if (deleted) {
             return ResponseEntity.ok ( "Train deleted successfully." );
         } else {
-            return ResponseEntity.status ( HttpStatus.NOT_FOUND ).body ( "Train not found with ID: " + id );
+            return ResponseEntity.status ( HttpStatus.NOT_FOUND ).body ( "Train not found with ID: " + trainId );
         }
     }
 
 //     Update train
-    @PutMapping("/updateTrain/{id}")
-    public ResponseEntity<?> updateTrain(@PathVariable Long id, @RequestBody Train trainDetails) {
-        Train updatedTrain = trainService.updateTrain ( id, trainDetails );
+    @PutMapping("/updateTrain/{trainId}")
+    public ResponseEntity<?> updateTrain(@PathVariable Long trainId, @RequestBody Train trainDetails) {
+        Train updatedTrain = trainService.updateTrain ( trainId, trainDetails );
         if (updatedTrain != null) {
             return ResponseEntity.ok ( updatedTrain );
         } else {
-            return ResponseEntity.status ( HttpStatus.NOT_FOUND ).body ( "Train not found with ID: " + id );
+            return ResponseEntity.status ( HttpStatus.NOT_FOUND ).body ( "Train not found with ID: " + trainId );
         }
     }
 
