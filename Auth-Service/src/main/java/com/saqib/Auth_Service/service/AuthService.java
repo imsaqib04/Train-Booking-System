@@ -1,7 +1,6 @@
 package com.saqib.Auth_Service.service;
 
-import com.saqib.Auth_Service.dto.UserProfile;
-import com.saqib.Auth_Service.feign.UserServiceClient;
+import com.saqib.Auth_Service.dto.OAuth2UserProfileDTO;
 import com.saqib.Auth_Service.model.User;
 import com.saqib.Auth_Service.repo.UserRepository;
 import com.saqib.Auth_Service.utill.JwtUtil;
@@ -11,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.Optional;
 
 @Service
@@ -19,8 +19,6 @@ public class AuthService {
     @Autowired
     private UserRepository userRepo;
 
-    @Autowired
-    private UserServiceClient userServiceClient;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -28,56 +26,60 @@ public class AuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-
     public ResponseEntity<String> register(User user) {
-        if (user.getEmail () == null || user.getEmail ().isEmpty ()) {
-            return ResponseEntity.badRequest ().body ( "Email is required" );
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            return ResponseEntity.badRequest().body("Email is required");
         }
 
         // Check if email already exists
-        Optional<User> existingUser = Optional.ofNullable ( userRepo.findByEmail ( user.getEmail () ) );
-        if (existingUser.isPresent ()) {
-            return ResponseEntity.status ( HttpStatus.CONFLICT )
-                    .body ( "Email already registered" );
+        Optional<User> existingUser = userRepo.findByEmail ( user.getEmail () );
+        if (existingUser.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already registered");
         }
 
         // Encode the password before saving
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setProvider("LOCAL");
 
-        // Save user
-        userRepo.save ( user );
+        userRepo.save(user);
 
-        // Create UserProfile
-        UserProfile profile = new UserProfile ();
-        profile.setUserId ( user.getUserId () );
-        profile.setName ( user.getUserName () );
-        profile.setEmail ( user.getEmail () );
-        profile.setContactNumber ( user.getContactNumber () );
-        profile.setAddress ( user.getAddress () );
-        profile.setGender ( user.getGender () );
-        profile.setDob ( user.getDob () );
-        profile.setAadhaar ( user.getAadhaar () );
-        profile.setRole ( user.getRole () );
-        // profile.setPassword(user.getPassword());
-
-        userServiceClient.saveUser ( profile );
-
-        return ResponseEntity.ok ( "User registered successfully" );
+        return ResponseEntity.ok("User registered successfully");
     }
-
 
     public String login(String email, String password) {
-        // Fetch user from Auth DB
-        User user = userRepo.findByEmail ( email );
+        Optional<User> userOptional = userRepo.findByEmail(email);
 
-        // Validate credentials
-        if (user == null || !passwordEncoder.matches ( password, user.getPassword () )) {
-            throw new RuntimeException ( "Invalid email or password" );
+        if (userOptional.isEmpty()) {
+            return null; // will be handled in controller
         }
 
-        // Generate JWT token
-        return jwtUtil.generateToken ( user.getEmail () );
+        User user = userOptional.get();
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return null; // also will be handled
+        }
+
+        return jwtUtil.generateToken(user.getEmail());
     }
 
+
+    public OAuth2UserProfileDTO getProfile(Principal principal) {
+        System.out.println ("hello saqib");
+        if (principal == null) {
+            throw new RuntimeException("User not authenticated");
+        }
+
+        System.out.println ("ok done this ");
+
+        // email is set as principal name
+        String email = principal.getName();
+
+        Optional<User> optionalUser = userRepo.findByEmail ( email);
+        if (optionalUser.isEmpty()) {
+            throw new RuntimeException("User not found with email: " + email);
+        }
+
+        User user = optionalUser.get();
+        return new OAuth2UserProfileDTO(user.getUsername (), user.getEmail(), user.getProvider());
+    }
 }

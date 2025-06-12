@@ -1,15 +1,17 @@
 package com.saqib.Auth_Service.controller;
 
+import com.saqib.Auth_Service.dto.OAuth2UserProfileDTO;
 import com.saqib.Auth_Service.model.User;
 import com.saqib.Auth_Service.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
@@ -23,14 +25,22 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> userMap) {
-        String email = userMap.get ( "email" );
-        String password = userMap.get ( "password" );
+        String email = userMap.get("email");
+        String password = userMap.get("password");
 
-        String token = authService.login ( email, password );
+        String token = authService.login(email, password);
 
         if (token == null) {
-            return ResponseEntity.status ( 401 ).body ( "Invalid email or password" );
+            return ResponseEntity.status(401).body("Invalid email or password");
         }
-        return ResponseEntity.ok ( Map.of ( "token", token ) );
+
+        return ResponseEntity.ok(Map.of("token", token));
+    }
+
+
+    @GetMapping("/profile")
+    public ResponseEntity<OAuth2UserProfileDTO> getProfile(Principal principal) {
+        OAuth2UserProfileDTO profile = authService.getProfile(principal);
+        return ResponseEntity.ok(profile);
     }
 }

@@ -1,43 +1,35 @@
 package com.saqib.Auth_Service.config;
 
-import com.saqib.Auth_Service.security.JwtFilter;
+import com.saqib.Auth_Service.service.Oauth2Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@EnableWebSecurity
 public class SecurityConfig {
 
     @Autowired
-    private JwtFilter jwtFilter;
+    private Oauth2Service customOAuth2UserService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // allow login, signup without token
-                        .anyRequest().authenticated() // all others need token
+                .csrf ().disable ()
+                .authorizeHttpRequests ( auth -> auth
+                        .requestMatchers ( "/api/auth/**", "/oauth2/**", "/welcome" ).permitAll ()
+                        .anyRequest ().authenticated ()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .oauth2Login ( oauth2 -> oauth2
+                        .loginPage ( "/oauth2/authorization/google" )  // chanage here for google or github
+                        .userInfoEndpoint ( userInfo -> userInfo.userService ( customOAuth2UserService ) )
+                        .defaultSuccessUrl ( "/welcome", true )
+                        .failureUrl ( "/oauth2/loginFailure" )
                 );
 
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
+        return http.build ();
     }
-
-    // Expose AuthenticationManager bean if you need it
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
-        return config.getAuthenticationManager();
-    }
-
 }
