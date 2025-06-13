@@ -15,7 +15,7 @@ public class User{
     private String provider; // GOOGLE, GITHUB, LOCAL
     private boolean emailVerified;
 
-    private boolean enabled;
+    private boolean enabled = false;
 
     private boolean locked;
 
