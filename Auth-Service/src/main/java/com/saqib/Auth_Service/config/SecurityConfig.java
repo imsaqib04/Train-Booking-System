@@ -34,7 +34,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/oauth2/authorization/google")  // use github if needed
+                        .loginPage("/oauth2/authorization/google")  // using frontend
+                        .loginPage ("/oauth2/authorization/github")  // same here only one call using backend
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .defaultSuccessUrl("/welcome", true)
                         .failureUrl("/oauth2/loginFailure")

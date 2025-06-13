@@ -134,6 +134,7 @@ public class AuthService {
         User user = optionalUser.get ();
         if (user.isEnabled ()) return ResponseEntity.ok ( "Email already verified." );
 
+        user.setEmailVerified ( true );
         user.setEnabled ( true );
         userRepo.save ( user );
 
