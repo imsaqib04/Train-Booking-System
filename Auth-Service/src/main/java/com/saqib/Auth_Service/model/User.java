@@ -37,7 +37,7 @@ public class User{
 
 
 
-    @Enumerated(EnumType.STRING)
+//    @Enumerated(EnumType.STRING)
     private Role role;
 
     public Long getId() {

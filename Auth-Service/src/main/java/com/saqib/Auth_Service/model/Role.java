@@ -1,6 +1,16 @@
 package com.saqib.Auth_Service.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public enum Role {
-    Role_USER,  // Regular user role
-    Role_ADMIN  // Admin role with higher privileges
+    ROLE_USER, ROLE_ADMIN;
+
+    @JsonCreator
+    public static Role fromString(String value) {
+        switch (value.toLowerCase()) {
+            case "user": return ROLE_USER;
+            case "admin": return ROLE_ADMIN;
+            default: throw new IllegalArgumentException("Invalid role: " + value);
+        }
+    }
 }
