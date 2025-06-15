@@ -4,7 +4,6 @@ import com.saqib.User_Service.dto.UserRequestDto;
 import com.saqib.User_Service.dto.UserResponseDto;
 import com.saqib.User_Service.model.User;
 import com.saqib.User_Service.repo.UserRepository;
-import com.saqib.User_Service.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

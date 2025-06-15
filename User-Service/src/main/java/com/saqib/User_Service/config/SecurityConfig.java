@@ -1,5 +1,6 @@
 package com.saqib.User_Service.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,24 +12,23 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JwtDecoder jwtDecoder;
-
-    public SecurityConfig(JwtDecoder jwtDecoder) {
-        this.jwtDecoder = jwtDecoder;
-    }
+    @Autowired
+    private JwtDecoder jwtDecoder;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                        .anyRequest().authenticated()
+                .csrf ().disable ()
+                .authorizeHttpRequests ( auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/user/profile/save").authenticated()
+
+                        .anyRequest ().authenticated ()
                 )
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.decoder(jwtDecoder)) // custom JwtDecoder
+                .oauth2ResourceServer ( oauth2 -> oauth2
+                        .jwt ( jwt -> jwt.decoder ( jwtDecoder ) ) // custom JwtDecoder
                 );
 
-        return http.build();
+        return http.build ();
     }
 }

@@ -1,5 +1,7 @@
 package com.saqib.User_Service.controller;
 
+import com.saqib.User_Service.model.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jwt.Jwt; //Correct
 import com.saqib.User_Service.dto.UserRequestDto;
 import com.saqib.User_Service.dto.UserResponseDto;

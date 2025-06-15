@@ -15,6 +15,7 @@ public class JwtConfig {
 
     @Value("${jwt.secret}")
     private String secret;
+
     @Bean
     public JwtDecoder jwtDecoder() {
         byte[] keyBytes = secret.getBytes(); // <- directly use bytes, no decoding
