@@ -64,7 +64,7 @@ public class UserProfileService {
         }
 
         // ✅ Now update profile fields
-        profile.setFullName(dto.getName());
+        profile.setFullName(dto.getUsername ());
         profile.setPhoneNumber(dto.getPhoneNumber());
         profile.setGender(dto.getGender());
         profile.setDateOfBirth(dto.getDateOfBirth());
