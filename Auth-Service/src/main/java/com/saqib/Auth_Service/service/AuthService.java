@@ -1,8 +1,7 @@
 package com.saqib.Auth_Service.service;
 
-import com.saqib.Auth_Service.dto.LoginRequest;
-import com.saqib.Auth_Service.dto.LoginResponse;
-import com.saqib.Auth_Service.dto.OAuth2UserProfileDTO;
+import com.saqib.Auth_Service.dto.*;
+import com.saqib.Auth_Service.feign.UserServiceClient;
 import com.saqib.Auth_Service.model.BlacklistedToken;
 import com.saqib.Auth_Service.model.User;
 import com.saqib.Auth_Service.repo.BlacklistedTokenRepository;
@@ -17,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.sql.SQLOutput;
 import java.util.Optional;
 
 @Service
@@ -37,46 +37,139 @@ public class AuthService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public void register(User user) {
-        if (userRepo.findByEmail ( user.getEmail () ).isPresent ()) {
-            throw new RuntimeException ( "Email already exists" );
+    @Autowired
+    private UserServiceClient userServiceClient;
+
+//    public void register(User user) {
+//        if (userRepo.findByEmail ( user.getEmail () ).isPresent ()) {
+//            throw new RuntimeException ( "Email already exists" );
+//        }
+//
+//        user.setPassword ( passwordEncoder.encode ( user.getPassword () ) );
+//        user.setEnabled ( false );
+//        userRepo.save ( user );
+//
+//        String token = jwtUtil.generateEmailVerificationToken ( user.getEmail () );
+//
+//        String link = "http://localhost:8091/api/auth/verify?token=" + token;
+//
+//        try {
+//            emailService.sendEmail (
+//                    user.getEmail (),
+//                    "Verify your email",
+//                    "Click here to verify your account: " + link
+//            );
+//        } catch (Exception e) {
+//            throw new RuntimeException ( "Email sending failed: " + e.getMessage () );
+//        }
+//    }
+
+    public ResponseEntity<?> register(SignUpRequest request) {
+        // 1. Check if user already exists
+        System.out.println ("Step-2");
+        if (userRepo.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
         }
 
-        user.setPassword ( passwordEncoder.encode ( user.getPassword () ) );
-        user.setEnabled ( false );
-        userRepo.save ( user );
+        // 2. Save user in Auth DB
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setEnabled(false); // wait for verification
+        user.setEmailVerified(false);
+        user.setProvider("LOCAL"); // default
+        userRepo.save(user);
 
-        String token = jwtUtil.generateEmailVerificationToken ( user.getEmail () );
-
+        // 4. Generate email verification token
+        String token = jwtUtil.generateEmailVerificationToken(request.getEmail());
         String link = "http://localhost:8091/api/auth/verify?token=" + token;
 
         try {
-            emailService.sendEmail (
-                    user.getEmail (),
+            emailService.sendEmail(
+                    request.getEmail(),
                     "Verify your email",
                     "Click here to verify your account: " + link
             );
         } catch (Exception e) {
-            throw new RuntimeException ( "Email sending failed: " + e.getMessage () );
+            throw new RuntimeException("❌ Email sending failed: " + e.getMessage());
         }
+
+        System.out.println ("Step-6");
+
+        // 5. Return success response (optionally with token)
+        return ResponseEntity.ok("✅ Registration successful! Please verify your email.");
     }
 
+
+//    public LoginResponse login(LoginRequest request) throws Throwable {
+//        User user = (User) userRepo.findByEmail ( request.getEmail () )
+//                .orElseThrow ( () -> new UsernameNotFoundException ( "User not found" ) );
+//
+//        if (!passwordEncoder.matches ( request.getPassword (), user.getPassword () )) {
+//            throw new BadCredentialsException ( "Invalid password" );
+//        }
+//
+//        if (!user.isEnabled ()) {
+//            throw new RuntimeException ( "Please verify your email before login" );
+//        }
+//
+//        String token = jwtUtil.generateToken ( user.getEmail () );
+//        return new LoginResponse ( token, "Login successful" );
+//    }
+
+//    public LoginResponse login(LoginRequest request) throws Throwable {
+//        User user = (User) userRepo.findByEmail(request.getEmail())
+//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+//
+//        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+//            throw new BadCredentialsException("Invalid password");
+//        }
+//
+//        if (!user.isEnabled()) {
+//            throw new RuntimeException("Please verify your email before login");
+//        }
+//
+//        String token = jwtUtil.generateToken(user.getEmail());
+//        return new LoginResponse(token, "Login successful");
+//    }
 
     public LoginResponse login(LoginRequest request) throws Throwable {
-        User user = (User) userRepo.findByEmail ( request.getEmail () )
-                .orElseThrow ( () -> new UsernameNotFoundException ( "User not found" ) );
+        // Step 1: Find user by email
+        User user = (User) userRepo.findByEmail(request.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        if (!passwordEncoder.matches ( request.getPassword (), user.getPassword () )) {
-            throw new BadCredentialsException ( "Invalid password" );
+        // Step 2: Check password
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Invalid password");
         }
 
-        if (!user.isEnabled ()) {
-            throw new RuntimeException ( "Please verify your email before login" );
+        // Step 3: Check email verification
+        if (!user.isEnabled()) {
+            throw new RuntimeException("Please verify your email before login");
         }
 
-        String token = jwtUtil.generateToken ( user.getEmail () );
-        return new LoginResponse ( token, "Login successful" );
+        // Step 4: Generate JWT token
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        // Step 5: Send verified email to User Service (if not already saved)
+        ResponseDtoForEmail responseDtoForEmail = new ResponseDtoForEmail();
+        responseDtoForEmail.setEmail(user.getEmail());
+
+        System.out.println ("before saving user service");
+        System.out.println("📤 Sending verified user email to User Service...");
+        try {
+            userServiceClient.saveUser(responseDtoForEmail, "Bearer " + token);
+            System.out.println("✅ Email saved in User Service.");
+        } catch (Exception e) {
+            System.out.println("⚠️ User not saved in User Service: " + e.getMessage());
+        }
+        System.out.println ("after saving user service");
+
+        // Step 6: Return token response
+        return new LoginResponse(token, "Login successful");
     }
+
+
 
 
     public OAuth2UserProfileDTO getProfile(Principal principal) {

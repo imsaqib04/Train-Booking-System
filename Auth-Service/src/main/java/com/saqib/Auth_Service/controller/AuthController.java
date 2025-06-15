@@ -24,9 +24,10 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
+    public ResponseEntity<?> registerUser(@RequestBody SignUpRequest signUpRequest) {
+        System.out.println("step1");
         try {
-            authService.register ( user );
+            authService.register ( signUpRequest );
             return ResponseEntity.ok ( "Registration successful. Please check your email to verify." );
         } catch (Exception e) {
             return ResponseEntity.badRequest ().body ( "Error: " + e.getMessage () );

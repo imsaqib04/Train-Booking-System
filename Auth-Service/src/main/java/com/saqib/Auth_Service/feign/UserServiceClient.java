@@ -1,21 +1,17 @@
-//package com.saqib.Auth_Service.feign;
-//
-//import com.saqib.Auth_Service.dto.UserProfile;
-//import org.springframework.cloud.openfeign.FeignClient;
-//import org.springframework.web.bind.annotation.GetMapping;
-//import org.springframework.web.bind.annotation.PathVariable;
-//import org.springframework.web.bind.annotation.PostMapping;
-//import org.springframework.web.bind.annotation.RequestBody;
-//
-//
-//@FeignClient(name = "User-Service", url = "http://localhost:8082/users")
-//    public interface UserServiceClient {
-//        @PostMapping("/save")
-//        public UserProfile saveUser(@RequestBody UserProfile profile);
-//
-//        @GetMapping("/{userId}")
-//        public UserProfile getUserById(@PathVariable("userId") String userId);
-//
-//        @GetMapping("/email/{email}")
-//        UserProfile findByEmail(@PathVariable("email") String email);
-//}
+package com.saqib.Auth_Service.feign;
+
+import com.saqib.Auth_Service.dto.ResponseDtoForEmail;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+@FeignClient(name = "USER-SERVICE", url = "http://localhost:8092/api/user/profile")
+public interface UserServiceClient {
+
+        @PostMapping("/save")
+        ResponseEntity<String> saveUser(@RequestBody ResponseDtoForEmail responseDtoForEmail,
+                                        @RequestHeader("Authorization") String token);
+    }
+

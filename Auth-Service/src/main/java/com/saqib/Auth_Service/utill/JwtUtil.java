@@ -17,7 +17,7 @@ public class JwtUtil {
     private BlacklistedTokenRepository blacklistedTokenRepository;
 
     // ✅ Use a 32-character minimum strong secret (or load from properties)
-    private static final String SECRET = "my_super_secure_jwt_secret_key_123456";
+    private static final String SECRET = "YXBpLWdwdC1qc29uLXNlY3VyZS1zZWNyZXQta2V5LWZvci1qc29uLXRva2Vu";
     private final Key SECRET_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
 
     public String extractUsername(String token) {
