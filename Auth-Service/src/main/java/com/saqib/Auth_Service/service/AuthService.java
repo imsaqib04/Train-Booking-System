@@ -3,6 +3,7 @@ package com.saqib.Auth_Service.service;
 import com.saqib.Auth_Service.dto.*;
 import com.saqib.Auth_Service.feign.UserServiceClient;
 import com.saqib.Auth_Service.model.BlacklistedToken;
+import com.saqib.Auth_Service.model.Role;
 import com.saqib.Auth_Service.model.User;
 import com.saqib.Auth_Service.repo.BlacklistedTokenRepository;
 import com.saqib.Auth_Service.repo.UserRepository;
@@ -73,11 +74,21 @@ public class AuthService {
 
         // 2. Save user in Auth DB
         User user = new User();
+        user.setUsername ( request.getUsername () );
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEnabled(false); // wait for verification
         user.setEmailVerified(false);
-        user.setProvider("LOCAL"); // default
+//        user.setRole( Role.valueOf(request.getRole().toUpperCase()));
+        // ✅ Safer enum parsing
+        try {
+            user.setRole(Role.fromString(request.getRole()));
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("❌ Invalid role: must be 'user' or 'admin'");
+        }
+
+        user.setProvider("LOCAL");
+
         userRepo.save(user);
 
         // 4. Generate email verification token
