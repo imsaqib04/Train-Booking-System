@@ -18,7 +18,7 @@ public class TrainService {
     }
 
     public Optional<Train> getTrainById(Long trainId) {
-        return trainRepository.findById(trainId);
+        return trainRepository.findByTrainId (trainId);
     }
 
     public Train createTrain(Train train) {
@@ -26,8 +26,8 @@ public class TrainService {
     }
 
     public Optional<Integer> getTotalSeats(Long trainId) {
-        return trainRepository.findById(trainId)
-                .map(Train::getTotalSeats);
+        return trainRepository.findByTrainId ( trainId )
+                .map(Train::getPassengerCapacity);
     }
 
 
@@ -72,19 +72,45 @@ public class TrainService {
     }
 
     // Update train details
-    public Train updateTrain(Long trainId, Train trainDetails) {
+//    public Train updateTrain(Long trainId, Train trainDetails) {
+//        Train train = trainRepository.findById(trainId)
+//                .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
+//
+//        train.setTrainName (trainDetails.getTrainName ());
+//        train.setSource(trainDetails.getSource());
+//        train.setDestination(trainDetails.getDestination());
+//        train.setTravelDate ( trainDetails.getTravelDate () );
+//        train.setDepartureTime(trainDetails.getDepartureTime());
+//        train.setArrivalTime (trainDetails.getArrivalTime ());
+//        train.setTrainClass ( trainDetails.getTrainClass () );
+//        train.setTotalSeats(trainDetails.getTotalSeats());
+//        train.setAvailableSeats ( train.getAvailableSeats () );
+//
+//        return trainRepository.save(train);
+//    }
+
+    public Train updateTrain(Long trainId, Train updatedTrain) {
         Train train = trainRepository.findById(trainId)
                 .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
 
-        train.setTrainName (trainDetails.getTrainName ());
-        train.setSource(trainDetails.getSource());
-        train.setDestination(trainDetails.getDestination());
-        train.setTravelDate ( trainDetails.getTravelDate () );
-        train.setDepartureTime(trainDetails.getDepartureTime());
-        train.setArrivalTime (trainDetails.getArrivalTime ());
-        train.setTrainClass ( trainDetails.getTrainClass () );
-        train.setTotalSeats(trainDetails.getTotalSeats());
-        train.setAvailableSeats ( train.getAvailableSeats () );
+        train.setTrainId(updatedTrain.getTrainId());
+        train.setTrainName(updatedTrain.getTrainName());
+        train.setPassengerCapacity(updatedTrain.getPassengerCapacity());
+        train.setTrainType(updatedTrain.getTrainType());
+        train.setSource(updatedTrain.getSource());
+        train.setDestination(updatedTrain.getDestination());
+        train.setTravelDate(updatedTrain.getTravelDate());
+        train.setArrivalTime(updatedTrain.getArrivalTime());
+        train.setDepartureTime(updatedTrain.getDepartureTime());
+        train.setAvailableSeats(updatedTrain.getAvailableSeats());
+        train.setClassSl(updatedTrain.getClassSl());
+        train.setClass3Ac(updatedTrain.getClass3Ac());
+        train.setClass2Ac(updatedTrain.getClass2Ac());
+        train.setRunningDays(updatedTrain.getRunningDays());
+        train.setStatus(updatedTrain.getStatus());
+        train.setFareSl(updatedTrain.getFareSl());
+        train.setFare3Ac(updatedTrain.getFare3Ac());
+        train.setFare2Ac(updatedTrain.getFare2Ac());
 
         return trainRepository.save(train);
     }
