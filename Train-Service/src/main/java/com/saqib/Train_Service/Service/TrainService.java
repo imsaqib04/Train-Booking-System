@@ -32,7 +32,7 @@ public class TrainService {
 
 
     public void updateAvailableSeats(Long trainId, int seatsToReduce) {
-        Train train = trainRepository.findById(trainId)
+        Train train = trainRepository.findByTrainId(trainId)
                 .orElseThrow(() -> new RuntimeException("Train not found"));
 
         int updatedSeats = train.getAvailableSeats() - seatsToReduce;
@@ -45,7 +45,7 @@ public class TrainService {
     }
 
     public void increaseSeats(Long trainId, int seats) {
-        Train train = trainRepository.findById(trainId)
+        Train train = trainRepository.findByTrainId (trainId)
                 .orElseThrow(() -> new RuntimeException("Train not found"));
         train.setAvailableSeats(train.getAvailableSeats() + seats);
         trainRepository.save(train);
@@ -64,8 +64,8 @@ public class TrainService {
 
     // Delete train by ID with success flag
     public boolean deleteTrain(Long trainId) {
-        if (trainRepository.existsById(trainId)) {
-            trainRepository.deleteById(trainId);
+        if (trainRepository.existsByTrainId(trainId)) {
+            trainRepository.deleteByTrainId(trainId);
             return true;
         }
         return false;
@@ -90,7 +90,7 @@ public class TrainService {
 //    }
 
     public Train updateTrain(Long trainId, Train updatedTrain) {
-        Train train = trainRepository.findById(trainId)
+        Train train = trainRepository.findByTrainId (trainId)
                 .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
 
         train.setTrainId(updatedTrain.getTrainId());
@@ -119,6 +119,5 @@ public class TrainService {
     public List<Train> findBySourceAndDestination(String source, String destination) {
         return trainRepository.findBySourceAndDestination(source, destination);
     }
-
 }
 
