@@ -49,22 +49,26 @@ package com.saqib.Booking_Service.feign;
 //}
 
 
+import com.saqib.Booking_Service.dto.TrainDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "train-service", url = "http://localhost:8081")
+@FeignClient(name = "train-service", url = "http://localhost:8093")
 public interface TrainClient {
 
     @GetMapping("/api/train/{id}/total-seats")
-    int getTotalSeats(@PathVariable("id") Long trainId);
+    TrainDto getTotalSeats(@PathVariable("id") Long trainId);
 
-    @PutMapping("api/train/{id}/update-seats")
+    @PutMapping("/api/train/{id}/update-seats")
     void updateAvailableSeats(@PathVariable("id") Long trainId, @RequestParam("seatsToReduce") int seatsToReduce);
 
-    @PutMapping("api/train/{trainId}/seats/increase")
+    @PutMapping("/api/train/{trainId}/seats/increase")
     void increaseAvailableSeats(@PathVariable Long trainId, @RequestParam int seats);
+
+    @GetMapping("/api/train/{id}")
+    TrainDto getTrainById(@PathVariable("id") Long trainId);
 
 }

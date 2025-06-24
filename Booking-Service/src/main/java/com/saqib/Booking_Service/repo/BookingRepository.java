@@ -1,47 +1,31 @@
 package com.saqib.Booking_Service.repo;
 
-//import com.saqib.Booking_Service.BookingStatus;
-//import com.saqib.Booking_Service.model.Booking;
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import org.springframework.data.jpa.repository.Query;
-//import org.springframework.data.repository.query.Param;
-//import org.springframework.stereotype.Repository;
-//
-//import java.time.LocalDate;
-//import java.util.List;
-//
-//@Repository
-//public interface BookingRepository extends JpaRepository<Booking, Long> {
-//
-//    List<Booking> findByUserId(Long userId);
-//
-//    int countByTrainId(Long trainId);
-//
-//    @Query("SELECT COALESCE(SUM(b.numberOfSeats), 0) FROM Booking b WHERE b.trainId = :trainId AND b.status = 'CONFIRMED'")
-//    int getTotalBookedSeatsByTrainId(@Param("trainId") Long trainId);
-//
-//    List<Booking> findByTrainIdAndTravelDateAndStatus(Long trainId, LocalDate travelDate, BookingStatus status);
-//
-//}
-
-
 import com.saqib.Booking_Service.BookingStatus;
 import com.saqib.Booking_Service.model.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    // Count only confirmed bookings for train
-    int countByTrainIdAndStatus(Long trainId, BookingStatus status);
+    Optional<Booking> findByPnrNumber(String pnr);
 
-    // Find max waiting list position for a train
-    @Query("SELECT MAX(b.waitingListPosition) FROM Booking b WHERE b.trainId = :trainId AND b.status = 'WAITING'")
-    Integer findMaxWaitingListPositionByTrainId(Long trainId);
+    List<Booking> findByUserId(Long userId);
 
-    List<Booking> findByTrainIdAndStatusOrderByWaitingListPositionAsc(Long trainId, BookingStatus bookingStatus);
+    List<Booking> findByJourneyDate(LocalDate journeyDate);
 
-    List<Booking> findByTrainIdAndStatusAndWaitingListPositionGreaterThanOrderByWaitingListPositionAsc(Long trainId, BookingStatus bookingStatus, Integer promotedPosition);
+    @Query("SELECT b FROM Booking b WHERE b.trainId = :trainId AND b.journeyDate = :date AND b.status = 'WAITING' ORDER BY b.waitingListPosition ASC")
+    List<Booking> findWaitingList(@Param("trainId") Long trainId, @Param("date") LocalDate date);
+
+    @Query("SELECT b FROM Booking b WHERE b.status = 'CONFIRMED' AND b.journeyDate = :tomorrow")
+    List<Booking> findUpcomingJourneys(@Param("today") LocalDate today, @Param("tomorrow") LocalDate tomorrow);
+
+    List<Booking> findByUserIdAndTrainIdAndJourneyDate(Long userId, Long trainId, LocalDate journeyDate);
 }

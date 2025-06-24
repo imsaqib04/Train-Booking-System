@@ -1,11 +1,12 @@
 package com.saqib.Booking_Service.dto;
 
 import com.saqib.Booking_Service.model.Gender;
+import com.saqib.Booking_Service.model.SeatPreference;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class PassengerDto {
+public class PassengerRequestDto {
 
     @NotBlank
     private String name;
@@ -18,7 +19,7 @@ public class PassengerDto {
 
     private String idProofType;
 
-    private String seatPreference;
+    private SeatPreference seatPreference;
 
     private Boolean isChild;
     private Boolean isSeniorCitizen;
@@ -57,11 +58,11 @@ public class PassengerDto {
         this.idProofType = idProofType;
     }
 
-    public String getSeatPreference() {
+    public SeatPreference getSeatPreference() {
         return seatPreference;
     }
 
-    public void setSeatPreference(String seatPreference) {
+    public void setSeatPreference(SeatPreference seatPreference) {
         this.seatPreference = seatPreference;
     }
 
