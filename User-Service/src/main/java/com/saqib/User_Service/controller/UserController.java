@@ -19,17 +19,23 @@ public class UserController {
 
     @GetMapping("/me")
     public UserResponseDto getMyProfile(@AuthenticationPrincipal Jwt jwt) {
-        return userService.getUserByEmail(jwt.getSubject());
+        return userService.getUserByEmail ( jwt.getSubject () );
     }
 
     @PutMapping("/me")
     public UserResponseDto updateMyProfile(@AuthenticationPrincipal Jwt jwt, @RequestBody UserRequestDto dto) {
-        return userService.updateUser(jwt.getSubject(), dto);
+        return userService.updateUser ( jwt.getSubject (), dto );
     }
 
     @DeleteMapping("/me")
     public String deleteMyProfile(@AuthenticationPrincipal Jwt jwt) {
-        userService.deleteUser(jwt.getSubject());
+        userService.deleteUser ( jwt.getSubject () );
         return "User deleted successfully";
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getByUserId(@PathVariable Long id) {
+        User user = userService.getUserById ( id );
+        return ResponseEntity.ok ( user ); // 200 OK with user data
     }
 }

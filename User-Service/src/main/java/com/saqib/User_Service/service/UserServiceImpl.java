@@ -2,6 +2,7 @@ package com.saqib.User_Service.service;
 
 import com.saqib.User_Service.dto.UserRequestDto;
 import com.saqib.User_Service.dto.UserResponseDto;
+import com.saqib.User_Service.exception.ResourceNotFoundException;
 import com.saqib.User_Service.model.User;
 import com.saqib.User_Service.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,5 +61,10 @@ public class UserServiceImpl implements UserService {
         dto.setPanNumber(user.getPanNumber());
         dto.setProfileImageUrl(user.getProfileImageUrl());
         return dto;
+    }
+    @Override
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException ("User not found with ID: " + id));
     }
 }
