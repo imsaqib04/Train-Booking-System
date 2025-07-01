@@ -22,4 +22,6 @@ public interface TrainRepository extends JpaRepository<Train,Long> {
     boolean existsByTrainId(Long trainId);
 
     void deleteByTrainId(Long trainId);
+
+
 }

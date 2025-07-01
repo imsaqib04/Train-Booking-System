@@ -1,0 +1,80 @@
+🛠️ 2. 🔮 Future Functionalities You Can Add (Ideas)
+Here's a list of realistic and practical features you can add one-by-one later:
+
+🚆 A. Distance-Based Fare Calculation
+Add distance field to Train or calculate based on source/destination
+
+Then use:
+
+java
+Copy
+Edit
+fare = baseFarePerKm * distance
+🎫 B. Booking System
+Add:
+
+Passenger model
+
+Booking model:
+
+java
+Copy
+Edit
+trainId, passengerId, date, seatClass, totalFare, seatNumber
+Book ticket by selecting train + class
+
+Calculate fare dynamically
+
+🪑 C. Seat Availability Check
+Add total seat capacity per class
+
+Track how many seats are booked per train per date
+
+Prevent overbooking
+
+📅 D. Train Schedule with Days
+Add runningDays: e.g., Mon, Wed, Fri
+
+Show trains only available on selected day
+
+🧭 E. Search Filters (Flexible)
+From → To + Date
+
+Class (2S / SL / 3AC / 2AC / 1AC)
+
+Max fare range (e.g., under ₹500)
+
+Departure time range (e.g., between 6 AM - 12 PM)
+
+🕐 F. Delay / Real-Time Status API
+Simulate real-time delay
+
+Add field like delayInMinutes
+
+Show ETA (estimated time of arrival)
+
+📈 G. Fare Comparison
+Same route → multiple trains → compare their class-wise fare
+
+📌 H. Admin vs User Role (Security)
+Admin can add/delete train
+
+User can only view/search/book
+
+Use Spring Security for authentication
+
+🗺️ I. Station List & Autocomplete
+Create separate Station entity
+
+Use dropdown/autocomplete for station search
+
+✨ Bonus: UI Ideas (If you’re making frontend too)
+Use React with:
+
+Train search page
+
+Booking form
+
+Train listing cards
+
+Fare breakdown modal

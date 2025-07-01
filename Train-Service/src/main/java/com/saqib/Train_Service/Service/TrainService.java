@@ -71,23 +71,6 @@ public class TrainService {
         return false;
     }
 
-    // Update train details
-//    public Train updateTrain(Long trainId, Train trainDetails) {
-//        Train train = trainRepository.findById(trainId)
-//                .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
-//
-//        train.setTrainName (trainDetails.getTrainName ());
-//        train.setSource(trainDetails.getSource());
-//        train.setDestination(trainDetails.getDestination());
-//        train.setTravelDate ( trainDetails.getTravelDate () );
-//        train.setDepartureTime(trainDetails.getDepartureTime());
-//        train.setArrivalTime (trainDetails.getArrivalTime ());
-//        train.setTrainClass ( trainDetails.getTrainClass () );
-//        train.setTotalSeats(trainDetails.getTotalSeats());
-//        train.setAvailableSeats ( train.getAvailableSeats () );
-//
-//        return trainRepository.save(train);
-//    }
 
     public Train updateTrain(Long trainId, Train updatedTrain) {
         Train train = trainRepository.findByTrainId (trainId)
