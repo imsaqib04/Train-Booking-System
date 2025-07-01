@@ -3,8 +3,7 @@ import java.time.LocalDate;
 
 public class UserProfileRequestDto {
 
-    private String username;
-    private String email;
+    private String fullName;
     private String phoneNumber;
     private String gender;
     private LocalDate dateOfBirth;
@@ -23,11 +22,10 @@ public class UserProfileRequestDto {
     public UserProfileRequestDto() {
     }
 
-    public UserProfileRequestDto(String username, String email, String phoneNumber, String gender, LocalDate dateOfBirth,
+    public UserProfileRequestDto(String fullName, String phoneNumber, String gender, LocalDate dateOfBirth,
                                  String address, String city, String state, Long pinCode,
                                  String aadhaarNumber, String panNumber, String profileImageUrl) {
-        this.username = username;
-        this.email = email;
+        this.fullName = fullName;
         this.phoneNumber = phoneNumber;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
@@ -42,18 +40,11 @@ public class UserProfileRequestDto {
 
     // Getters and Setters
 
-    public String getUsername() {
-        return username;
+    public String getFullName() {
+        return fullName;
     }
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-    public void setEmail(String email) {
-        this.email = email;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getPhoneNumber() {

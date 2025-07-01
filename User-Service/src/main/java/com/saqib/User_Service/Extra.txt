@@ -1,0 +1,5 @@
+for future development;
+
+Token me userId bhi bhejo(Login ke time claim("userId", user.getId())).
+
+DB lookup direct findById(userId) karega → slightly faster.

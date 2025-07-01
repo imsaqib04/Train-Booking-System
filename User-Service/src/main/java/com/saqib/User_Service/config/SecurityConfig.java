@@ -16,19 +16,21 @@ public class SecurityConfig {
     private JwtDecoder jwtDecoder;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filter(HttpSecurity http) throws Exception {
         http
-                .csrf ().disable ()
-                .authorizeHttpRequests ( auth -> auth
+                .csrf().disable()
+                .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/user/profile/save").authenticated()
 
-                        .anyRequest ().authenticated ()
-                )
-                .oauth2ResourceServer ( oauth2 -> oauth2
-                        .jwt ( jwt -> jwt.decoder ( jwtDecoder ) ) // custom JwtDecoder
-                );
+                        .requestMatchers("/api/internal/**").permitAll()
 
-        return http.build ();
+                        // बाकी endpoints के लिये अगर चाहें तो .authenticated()
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer(oauth -> oauth
+                        .jwt(jwt -> jwt.decoder(jwtDecoder))
+                );
+        return http.build();
     }
 }
