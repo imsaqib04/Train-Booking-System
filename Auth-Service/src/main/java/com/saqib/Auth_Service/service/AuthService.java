@@ -161,13 +161,16 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getEmail());
 
         // Step 5: Send verified email to User Service (if not already saved)
-        ResponseDtoForEmail responseDtoForEmail = new ResponseDtoForEmail();
-        responseDtoForEmail.setEmail(user.getEmail());
+        UserSyncDto userSyncDto = new UserSyncDto ();
+        userSyncDto.setEmail(user.getEmail());
+        userSyncDto.setUsername(user.getUsername());                    // ⭐ add
+        userSyncDto.setRole( String.valueOf ( user.getRole() ) );      // (optional) add
+
 
         System.out.println ("before saving user service");
         System.out.println("📤 Sending verified user email to User Service...");
         try {
-            userServiceClient.saveUser(responseDtoForEmail, "Bearer " + token);
+            userServiceClient.saveUser( userSyncDto, "Bearer " + token);
             System.out.println("✅ Email saved in User Service.");
         } catch (Exception e) {
             System.out.println("⚠️ User not saved in User Service: " + e.getMessage());
