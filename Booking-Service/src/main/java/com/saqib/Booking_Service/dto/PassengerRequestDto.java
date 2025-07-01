@@ -21,8 +21,22 @@ public class PassengerRequestDto {
 
     private SeatPreference seatPreference;
 
-    private Boolean isChild;
-    private Boolean isSeniorCitizen;
+    private Boolean child;
+    private Boolean seniorCitizen;
+
+    public boolean isChild() {
+        return child;
+    }
+    public void setChild(boolean child) {
+        this.child = child;
+    }
+
+    public boolean isSeniorCitizen() {
+        return seniorCitizen;
+    }
+    public void setSeniorCitizen(boolean seniorCitizen) {
+        this.seniorCitizen = seniorCitizen;
+    }
 
     // Getters, Setters
 
@@ -66,19 +80,4 @@ public class PassengerRequestDto {
         this.seatPreference = seatPreference;
     }
 
-    public Boolean getChild() {
-        return isChild;
     }
-
-    public void setChild(Boolean child) {
-        isChild = child;
-    }
-
-    public Boolean getSeniorCitizen() {
-        return isSeniorCitizen;
-    }
-
-    public void setSeniorCitizen(Boolean seniorCitizen) {
-        isSeniorCitizen = seniorCitizen;
-    }
-}

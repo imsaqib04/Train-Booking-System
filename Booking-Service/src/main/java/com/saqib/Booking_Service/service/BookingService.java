@@ -81,18 +81,15 @@ public class BookingService {
 
     @Transactional
     public BookingResponseDto bookTicket(BookingRequestDto request) throws IOException {
-        if (request.getPassengers().size() > 6) {
-            throw new IllegalArgumentException("⚠️ Maximum 6 passengers allowed per booking");
-        }
 
+        /* 1. validate passenger count & seat availability */
         TrainDto train = fetchTrain(request.getTrainId());
-
-        if (train.getAvailableSeats() < request.getPassengers().size()) {
-            throw new ResourceNotFoundException("Not enough seats available on train ID: " + request.getTrainId());
-        }
+        if (train.getAvailableSeats() < request.getPassengers().size())
+            throw new ResourceNotFoundException("Not enough seats");
 
         trainClient.updateAvailableSeats(train.getTrainId(), request.getPassengers().size());
 
+        /* 2. base booking */
         Booking booking = new Booking();
         booking.setUserId(request.getUserId());
         booking.setTrainId(request.getTrainId());
@@ -105,44 +102,72 @@ public class BookingService {
         booking.setStatus(BookingStatus.CONFIRMED);
         booking.setPaymentStatus(PaymentStatus.PENDING);
 
-        List<Passenger> passengerList = new ArrayList<>();
-        double totalFare = 0;
+        /* --- NEW: hydrate with user & train info --- */
+        UserResponseDto user = fetchUser(request.getUserId());
+        booking.setEmail (user.getEmail());
 
-        for (PassengerRequestDto dto : request.getPassengers()) {
+        booking.setTrainName(train.getTrainName());
+        booking.setSource (train.getSource());
+        booking.setDestination (train.getDestination());
+
+        /* 3. passengers + fare */
+        List<Passenger> pax = mapPassengers(request.getPassengers(), booking);
+        booking.setPassengers(pax);
+        booking.setTotalFare(pax.stream().mapToDouble(Passenger::getFare).sum());
+        booking.setTotalSeats(pax.size());
+
+        bookingRepository.save(booking);
+        passengerRepository.saveAll(pax);
+
+        /* 4. send temp confirmation mail (optional) */
+
+        /* 5. response dto */
+        return BookingResponseDto.from(booking);
+    }
+
+    /* ------------------- confirmPayment callback ------------------- */
+    @Transactional
+    public void confirmBookingAndSendTicket(Long bookingId, String paymentId) {
+
+        Booking b = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        if (b.getStatus() == BookingStatus.CONFIRMED && b.getPaymentStatus() == PaymentStatus.SUCCESS)
+            return;   // already processed
+
+        b.setStatus(BookingStatus.CONFIRMED);
+        b.setPaymentStatus(PaymentStatus.SUCCESS);
+        b.setPaymentId(paymentId);
+        bookingRepository.save(b);
+
+        // --- generate PDF ---
+        ByteArrayInputStream pdf = PdfGenerator.generateInvoice(b);
+
+        // --- email ---
+        String subj = "Your Ticket - PNR " + b.getPnrNumber();
+        String body = "Dear "+ b.getPassengers().get(0).getName()
+                +",\n\nYour booking is confirmed.\nHappy Journey!";
+        emailService.sendBookingMailWithAttachment(
+                b.getEmail (), subj, body, pdf.readAllBytes());
+    }
+
+    /* helper method to map passengers & calc fare */
+    private List<Passenger> mapPassengers(List<PassengerRequestDto> req, Booking booking) {
+        List<Passenger> list = new ArrayList<>();
+        for (PassengerRequestDto dto : req) {
             Passenger p = new Passenger();
             p.setName(dto.getName());
             p.setAge(dto.getAge());
             p.setGender(dto.getGender());
             p.setIdProofType(dto.getIdProofType());
             p.setSeatPreference(dto.getSeatPreference());
-            p.setChild(dto.getChild());
-            p.setSeniorCitizen(dto.getSeniorCitizen());
+            p.setChild(dto.isChild());
+            p.setSeniorCitizen(dto.isSeniorCitizen());
+            p.setFare(fareCalculator.calculateFare(p, String.valueOf ( booking.getCoachType() ) ));
             p.setBooking(booking);
-
-            double fare = fareCalculator.calculateFare(p, request.getCoachType().toString());
-            p.setFare(fare);
-            totalFare += fare;
-            passengerList.add(p);
+            list.add(p);
         }
-
-        booking.setTotalFare(totalFare);
-        booking.setTotalSeats(passengerList.size());
-        booking.setPassengers(passengerList);
-
-        Booking saved = bookingRepository.save(booking);
-        passengerRepository.saveAll(passengerList);
-
-        UserResponseDto user = fetchUser(booking.getUserId());
-
-        ByteArrayInputStream pdf = PdfGenerator.generateInvoice(saved);
-        emailService.sendBookingMailWithAttachment(
-                user.getEmail(),
-                "IRCTC Ticket Confirmed - PNR: " + booking.getPnrNumber(),
-                "Dear " + user.getFullName() + ",\n\nYour ticket has been confirmed.\nPNR: " + booking.getPnrNumber() + "\nTrain ID: " + booking.getTrainId(),
-                pdf.readAllBytes()
-        );
-
-        return BookingResponseDto.from(saved);
+        return list;
     }
 
     @Transactional
@@ -314,4 +339,52 @@ public class BookingService {
     public Optional<Booking> getBookingById(Long id) {
         return bookingRepository.findById(id);
     }
+
+    public void updateBookingStatus(Long bookingId, String status) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        booking.setStatus( BookingStatus.valueOf ( status ) ); // e.g., "CONFIRMED"
+        bookingRepository.save(booking);
+    }
+
+
+    // add after payment services
+    @Transactional
+    public void confirmPayment(Long bookingId) {
+        Booking b = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        b.setPaymentStatus(PaymentStatus.SUCCESS);
+        b.setStatus(BookingStatus.CONFIRMED);
+
+        bookingRepository.save(b);
+
+        log.info("💰 Payment captured, booking CONFIRMED for id {}", bookingId);
+    }
+//
+//    @Transactional
+//    public void confirmBookingAndSendTicket(Long bookingId, String paymentId) {
+//
+//        Booking booking = bookingRepository.findById(bookingId)
+//                .orElseThrow(() -> new RuntimeException("Booking not found " + bookingId));
+//
+//        if (booking.getStatus() == BookingStatus.CONFIRMED) {
+//            return;                     // already done – ignore duplicate
+//        }
+//
+//        booking.setStatus(BookingStatus.CONFIRMED);
+//        booking.setPaymentId(paymentId);
+//        bookingRepository.save(booking);
+//
+//        // === Build PDF invoice ===
+//        ByteArrayInputStream pdfBytes = PdfGenerator.generateInvoice(booking);
+//
+//        // === Send e‑mail ===
+//        String subject = "Your Train Ticket – PNR " + booking.getPnrNumber();
+//        String body    = "Dear " + (booking.getPassengers ()) + ",\n\n"
+//                + "Your booking is confirmed. Please find your e‑ticket attached.\n\n"
+//                + "Happy Journey!";
+//        emailService.sendBookingMailWithAttachment(
+//                booking.getEmail (), subject, body, pdfBytes.readAllBytes ());
+//    }
 }

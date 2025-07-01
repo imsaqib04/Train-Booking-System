@@ -3,10 +3,11 @@ package com.saqib.Booking_Service.controller;
 import com.saqib.Booking_Service.BookingStatus;
 import com.saqib.Booking_Service.dto.BookingRequestDto;
 import com.saqib.Booking_Service.dto.BookingResponseDto;
+import com.saqib.Booking_Service.dto.PaymentInfoDto;
 import com.saqib.Booking_Service.exceptions.ResourceNotFoundException;
 import com.saqib.Booking_Service.model.Booking;
 import com.saqib.Booking_Service.service.BookingService;
-import com.saqib.Booking_Service.service.TicketService;
+//import com.saqib.Booking_Service.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -25,8 +26,8 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
-    @Autowired
-    private TicketService ticketService;
+//    @Autowired
+//    private TicketService ticketService;
 
 //    @Autowired
     private ResourceNotFoundException resourceNotFoundException;
@@ -53,17 +54,17 @@ public class BookingController {
         return ResponseEntity.ok ( "✅ Booking cancelled and waiting list handled" );
     }
 
-    // 3.download ticket invoice
-    @GetMapping("/downloadTicket/{bookingId}")
-    public Object downloadTicket(@PathVariable Long bookingId) throws IOException {
-        ByteArrayInputStream pdf = ticketService.generateTicketPdf ( bookingId );
-
-        HttpHeaders headers = new HttpHeaders ();
-        headers.setContentType ( MediaType.APPLICATION_PDF );
-        headers.setContentDispositionFormData ( "attachment", "Ticket-" + bookingId + ".pdf" );
-
-        return new ResponseEntity<> ( pdf, headers, HttpStatus.OK );
-    }
+//    // 3.download ticket invoice
+//    @GetMapping("/downloadTicket/{bookingId}")
+//    public Object downloadTicket(@PathVariable Long bookingId) throws IOException {
+//        ByteArrayInputStream pdf = ticketService.generateTicketPdf ( bookingId );
+//
+//        HttpHeaders headers = new HttpHeaders ();
+//        headers.setContentType ( MediaType.APPLICATION_PDF );
+//        headers.setContentDispositionFormData ( "attachment", "Ticket-" + bookingId + ".pdf" );
+//
+//        return new ResponseEntity<> ( pdf, headers, HttpStatus.OK );
+//    }
 
     // 4. Cancel booking by PNR
     @PutMapping("/cancel/pnr/{pnr}")
@@ -117,5 +118,26 @@ public class BookingController {
                 .orElseThrow(() -> new ResourceNotFoundException("Booking not found with ID: " + bookingId));
     }
 
+    @PutMapping("/{id}/status")
+    public ResponseEntity<String> updateBookingStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        bookingService.updateBookingStatus(id, status);
+        return ResponseEntity.ok("Booking status updated to " + status);
+    }
+
+
+    // add after payment services
+    @PutMapping("/{id}/confirm-payment")
+    public ResponseEntity<String> confirmPayment(@PathVariable Long id) {
+        bookingService.confirmPayment(id);
+        return ResponseEntity.ok("Payment captured, booking confirmed");
+    }
+
+    @PostMapping("/{bookingId}/payment-confirmed")
+    public void paymentConfirmed(@PathVariable Long bookingId,
+                                 @RequestBody PaymentInfoDto dto) {
+        bookingService.confirmBookingAndSendTicket(bookingId, dto.getPaymentId());
+    }
 }
 
