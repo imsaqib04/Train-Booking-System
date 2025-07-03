@@ -1,8 +1,8 @@
 package com.saqib.Train_Service.controller;
 
 import com.saqib.Train_Service.Service.IntermediateStationService;
-import com.saqib.Train_Service.model.IntermediateStation;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.saqib.Train_Service.dto.IntermediateStationDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,22 +12,40 @@ import java.util.List;
 @RequestMapping("/api/stations")
 public class IntermediateStationController {
 
-    @Autowired
-    private IntermediateStationService stationService;
+    private final IntermediateStationService svc;
 
+    public IntermediateStationController(IntermediateStationService svc) {
+        this.svc = svc;
+    }
+
+    /* ───── Add one ───── */
     @PostMapping("/add/{trainId}")
-    public ResponseEntity<IntermediateStation> addStation(@PathVariable Long trainId, @RequestBody IntermediateStation station) {
-        return ResponseEntity.ok(stationService.addStation(trainId, station));
+    public ResponseEntity<IntermediateStationDTO> add(
+            @PathVariable Long trainId,
+            @Valid @RequestBody IntermediateStationDTO dto) {
+
+        return ResponseEntity.ok(svc.add(trainId, dto));
     }
 
+    /* ───── Batch add ───── */
+    @PostMapping("/add/{trainId}/batch")
+    public ResponseEntity<List<IntermediateStationDTO>> addBatch(
+            @PathVariable Long trainId,
+            @Valid @RequestBody List<IntermediateStationDTO> dtos) {
+
+        return ResponseEntity.ok(svc.addBatch(trainId, dtos));
+    }
+
+    /* ───── Get list ───── */
     @GetMapping("/train/{trainId}")
-    public ResponseEntity<List<IntermediateStation>> getStationsByTrain(@PathVariable Long trainId) {
-        return ResponseEntity.ok(stationService.getStationsByTrainId(trainId));
+    public ResponseEntity<List<IntermediateStationDTO>> list(@PathVariable Long trainId) {
+        return ResponseEntity.ok(svc.getByTrain(trainId));
     }
 
-    @DeleteMapping("/delete/{stationId}")
-    public ResponseEntity<String> deleteStation(@PathVariable Long stationId) {
-        stationService.deleteStation(stationId);
-        return ResponseEntity.ok("Deleted successfully.");
+    /* ───── Delete one ───── */
+    @DeleteMapping("/delete/{stationId}")     // stationId = id
+    public ResponseEntity<Void> delete(@PathVariable Long stationId) {
+        svc.delete(stationId);
+        return ResponseEntity.noContent().build();
     }
 }

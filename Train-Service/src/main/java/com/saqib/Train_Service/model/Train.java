@@ -1,6 +1,12 @@
  package com.saqib.Train_Service.model;
 
+import com.saqib.Train_Service.enums.TrainStatus;
+import com.saqib.Train_Service.enums.TrainType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -10,15 +16,49 @@ import java.util.List;
  @Table(name = "trains")
  public class Train {
 
+     // Train.java
+     @Column(name = "distance_in_km")
+     private Integer distanceInKm;
+
+     public Integer getDistanceInKm() { return distanceInKm; }
+     public void setDistanceInKm(Integer distanceInKm) { this.distanceInKm = distanceInKm; }
+
+
      @Id
      @GeneratedValue(strategy = GenerationType.IDENTITY)
      private Long id;
 
+     @Column(unique = true, nullable = false)
      private Long trainId;
      private String trainName;
+
+     @Positive
      private int passengerCapacity;
 
-     private String trainType;
+     @Enumerated(EnumType.STRING)
+     private TrainType trainType;
+
+     @Enumerated(EnumType.STRING)
+     private TrainStatus status;
+
+     @PositiveOrZero
+     private int availableSeats;
+
+     @Column(precision = 10, scale = 2)
+     private BigDecimal fare2S;
+
+     @Column(precision = 10, scale = 2)
+     private BigDecimal fareSl;
+
+     @Column(precision = 10, scale = 2)
+     private BigDecimal fare3Ac;
+
+     @Column(precision = 10, scale = 2)
+     private BigDecimal fare2Ac;
+
+     @Column(precision = 10, scale = 2)
+     private BigDecimal fare1Ac;
+
      private String source;
      private String destination;
 
@@ -26,7 +66,6 @@ import java.util.List;
      private LocalTime arrivalTime;
      private LocalTime departureTime;
 
-     private int availableSeats;
 
      private int class2S;          // 1 for true available
      private int classSl;          // 0 for false Unavailable
@@ -35,13 +74,6 @@ import java.util.List;
      private int class1Ac;
 
      private String runningDays;
-     private String status; // "Active" or "Not Active"
-
-     private double fare2S;
-     private double fareSl;
-     private double fare3Ac;
-     private double fare2Ac;
-     private double fare1Ac;
 
      public Train() {
      }
@@ -51,7 +83,6 @@ import java.util.List;
          this.trainId = trainId;
          this.trainName = trainName;
          this.passengerCapacity = passengerCapacity;
-         this.trainType = trainType;
          this.source = source;
          this.destination = destination;
          this.travelDate = travelDate;
@@ -64,12 +95,6 @@ import java.util.List;
          this.class2Ac = class2Ac;
          this.class1Ac = class1Ac;
          this.runningDays = runningDays;
-         this.status = status;
-         this.fare2S = fare2S;
-         this.fareSl = fareSl;
-         this.fare3Ac = fare3Ac;
-         this.fare2Ac = fare2Ac;
-         this.fare1Ac = fare1Ac;
      }
 
      public Long getId() {
@@ -102,14 +127,6 @@ import java.util.List;
 
      public void setPassengerCapacity(int passengerCapacity) {
          this.passengerCapacity = passengerCapacity;
-     }
-
-     public String getTrainType() {
-         return trainType;
-     }
-
-     public void setTrainType(String trainType) {
-         this.trainType = trainType;
      }
 
      public String getSource() {
@@ -204,57 +221,67 @@ import java.util.List;
          return runningDays;
      }
 
+     public String getTrainType() {
+         return String.valueOf ( trainType );
+     }
+
+     public String getStatus() {
+         return String.valueOf ( status );
+     }
+
+     public void setTrainType(TrainType trainType) {
+         this.trainType = trainType;
+     }
+
+
+     public void setStatus(TrainStatus status) {
+         this.status = status;
+     }
+
+     public BigDecimal getFare2S() {
+         return fare2S;
+     }
+
+     public void setFare2S(BigDecimal fare2S) {
+         this.fare2S = fare2S;
+     }
+
+     public BigDecimal getFareSl() {
+         return fareSl;
+     }
+
+     public void setFareSl(BigDecimal fareSl) {
+         this.fareSl = fareSl;
+     }
+
+     public BigDecimal getFare3Ac() {
+         return fare3Ac;
+     }
+
+     public void setFare3Ac(BigDecimal fare3Ac) {
+         this.fare3Ac = fare3Ac;
+     }
+
+     public BigDecimal getFare2Ac() {
+         return fare2Ac;
+     }
+
+     public void setFare2Ac(BigDecimal fare2Ac) {
+         this.fare2Ac = fare2Ac;
+     }
+
+     public BigDecimal getFare1Ac() {
+         return fare1Ac;
+     }
+
+     public void setFare1Ac(BigDecimal fare1Ac) {
+         this.fare1Ac = fare1Ac;
+     }
+
      public void setRunningDays(String runningDays) {
          this.runningDays = runningDays;
      }
 
-     public String getStatus() {
-         return status;
-     }
-
-     public void setStatus(String status) {
-         this.status = status;
-     }
-
-     public double getFare2S() {
-         return fare2S;
-     }
-
-     public void setFare2S(double fare2S) {
-         this.fare2S = fare2S;
-     }
-
-     public double getFareSl() {
-         return fareSl;
-     }
-
-     public void setFareSl(double fareSl) {
-         this.fareSl = fareSl;
-     }
-
-     public double getFare3Ac() {
-         return fare3Ac;
-     }
-
-     public void setFare3Ac(double fare3Ac) {
-         this.fare3Ac = fare3Ac;
-     }
-
-     public double getFare2Ac() {
-         return fare2Ac;
-     }
-
-     public void setFare2Ac(double fare2Ac) {
-         this.fare2Ac = fare2Ac;
-     }
-
-     public double getFare1Ac() {
-         return fare1Ac;
-     }
-
-     public void setFare1Ac(double fare1Ac) {
-         this.fare1Ac = fare1Ac;
-     }
 
      // after intermediate station
      @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -269,14 +296,6 @@ import java.util.List;
          this.intermediateStations = intermediateStations;
      }
 
-     private double distanceInKm; // Example: 450.0
 
-     public double getDistanceInKm() {
-         return distanceInKm;
-     }
-
-     public void setDistanceInKm(double distanceInKm) {
-         this.distanceInKm = distanceInKm;
-     }
  }
 

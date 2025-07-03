@@ -2,6 +2,8 @@ package com.saqib.Train_Service.model;
 
 import jakarta.persistence.*;
 
+import java.time.LocalTime;
+
 @Entity
 @Table(name = "intermediate_stations")
 public class IntermediateStation {
@@ -12,8 +14,8 @@ public class IntermediateStation {
 
     private String stationName;
 
-    private String arrivalTime;
-    private String departureTime;
+    private LocalTime arrivalTime;
+    private LocalTime departureTime;
 
     private int stopNumber;  // order of stop
 
@@ -25,8 +27,6 @@ public class IntermediateStation {
 
     public IntermediateStation(String stationName, String arrivalTime, String departureTime, int stopNumber, Train train) {
         this.stationName = stationName;
-        this.arrivalTime = arrivalTime;
-        this.departureTime = departureTime;
         this.stopNumber = stopNumber;
         this.train = train;
     }
@@ -49,19 +49,19 @@ public class IntermediateStation {
         this.stationName = stationName;
     }
 
-    public String getArrivalTime() {
+    public LocalTime getArrivalTime() {
         return arrivalTime;
     }
 
-    public void setArrivalTime(String arrivalTime) {
+    public void setArrivalTime(LocalTime arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
 
-    public String getDepartureTime() {
+    public LocalTime getDepartureTime() {
         return departureTime;
     }
 
-    public void setDepartureTime(String departureTime) {
+    public void setDepartureTime(LocalTime departureTime) {
         this.departureTime = departureTime;
     }
 

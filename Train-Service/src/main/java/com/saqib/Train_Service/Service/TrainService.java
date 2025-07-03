@@ -1,106 +1,182 @@
 package com.saqib.Train_Service.Service;
+
+import com.saqib.Train_Service.dto.AvailableSeatsDTO;
+import com.saqib.Train_Service.dto.SeatUpdateRequest;
+import com.saqib.Train_Service.dto.TrainRequestDTO;
+import com.saqib.Train_Service.dto.TrainResponseDTO;
+import com.saqib.Train_Service.exception.SeatUnavailableException;
+import com.saqib.Train_Service.mapper.TrainMapper;
 import com.saqib.Train_Service.model.Train;
 import com.saqib.Train_Service.repo.TrainRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TrainService {
 
-    @Autowired
-    private TrainRepository trainRepository;
+    private final TrainRepository repo;
 
-    public List<Train> getAllTrains() {
-        return trainRepository.findAll();
+    public TrainService(TrainRepository repo) {
+        this.repo = repo;
     }
 
-    public Optional<Train> getTrainById(Long trainId) {
-        return trainRepository.findByTrainId (trainId);
+    // ────────────────────────── CREATE ──────────────────────────
+
+    public TrainResponseDTO create(TrainRequestDTO dto) {
+        Train saved = repo.save(TrainMapper.toEntity(dto));
+        return TrainMapper.toResponse(saved);
     }
 
-    public Train createTrain(Train train) {
-        return trainRepository.save(train);
+    public List<TrainResponseDTO> createBatch(List<TrainRequestDTO> list) {
+        List<Train> entities = TrainMapper.toEntityList(list);
+        return TrainMapper.toResponseList(repo.saveAll(entities));
     }
 
-    public Optional<Integer> getTotalSeats(Long trainId) {
-        return trainRepository.findByTrainId ( trainId )
-                .map(Train::getPassengerCapacity);
+    // ────────────────────────── READ ──────────────────────────
+
+    public List<TrainResponseDTO> getAll() {
+        return TrainMapper.toResponseList(repo.findAll());
     }
 
+    public TrainResponseDTO getOne(Long trainId) {
+        Train train = repo.findByTrainId(trainId)
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+        return TrainMapper.toResponse(train);
+    }
 
-    public void updateAvailableSeats(Long trainId, int seatsToReduce) {
-        Train train = trainRepository.findByTrainId(trainId)
-                .orElseThrow(() -> new RuntimeException("Train not found"));
+    // ────────────────────────── UPDATE ──────────────────────────
 
-        int updatedSeats = train.getAvailableSeats() - seatsToReduce;
-        if (updatedSeats < 0) {
-            throw new IllegalArgumentException("Not enough available seats");
+    public TrainResponseDTO update(Long trainId, TrainRequestDTO dto) {
+        Train train = repo.findByTrainId(trainId)
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+        TrainMapper.copyRequestToEntity(dto, train);
+        return TrainMapper.toResponse(repo.save(train));
+    }
+
+    // ────────────────────────── DELETE ──────────────────────────
+
+    public void delete(Long trainId) {
+        if (!repo.existsByTrainId(trainId)) {
+            throw new IllegalArgumentException("Train not found");
         }
-
-        train.setAvailableSeats(updatedSeats);
-        trainRepository.save(train);
+        repo.deleteByTrainId(trainId);
     }
 
+    // ───────────────────── Seat management ─────────────────────
+
+    public int getTotalSeats(Long trainId) {
+        Train t = repo.findByTrainId(trainId)
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+        return t.getPassengerCapacity();
+    }
+
+    @Transactional
+    public void reduceSeats(Long trainId, int seats) {
+        Train t = repo.findByTrainIdForUpdate(trainId)   // PESSIMISTIC_WRITE query
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+        int updated = t.getAvailableSeats() - seats;
+        if (updated < 0) throw new IllegalArgumentException("Insufficient seats");
+        t.setAvailableSeats(updated);
+        repo.save(t);
+    }
+
+    @Transactional
     public void increaseSeats(Long trainId, int seats) {
-        Train train = trainRepository.findByTrainId (trainId)
-                .orElseThrow(() -> new RuntimeException("Train not found"));
-        train.setAvailableSeats(train.getAvailableSeats() + seats);
-        trainRepository.save(train);
+        Train t = repo.findByTrainIdForUpdate(trainId)
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+        t.setAvailableSeats(t.getAvailableSeats() + seats);
+        repo.save(t);
     }
 
-    //Search by train name (case-insensitive)
-    public List<Train> findByTrainName(String trainName) {
-        return trainRepository.findByTrainNameIgnoreCase(trainName);
+    // ─────────────────────── Searches ───────────────────────
+
+    public List<TrainResponseDTO> findByName(String trainName) {
+        return TrainMapper.toResponseList(repo.findByTrainNameIgnoreCase(trainName));
     }
 
-    // Add multiple trains
-    public List<Train> addAllTrains(List<Train> trains) {
-        return trainRepository.saveAll(trains);
+    public List<TrainResponseDTO> findByRoute(String source, String destination) {
+        return TrainMapper.toResponseList(repo.findBySourceAndDestination(source, destination));
+    }
+
+    // TrainService.java
+
+    public AvailableSeatsDTO getAvailableSeats(Long trainId) {
+        Train t = repo.findByTrainId(trainId)
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+
+        AvailableSeatsDTO dto = new AvailableSeatsDTO();
+        dto.setTotal(t.getAvailableSeats());
+        dto.setClass2S(t.getClass2S());
+        dto.setClassSl(t.getClassSl());
+        dto.setClass3Ac(t.getClass3Ac());
+        dto.setClass2Ac(t.getClass2Ac());
+        dto.setClass1Ac(t.getClass1Ac());
+        return dto;
     }
 
 
-    // Delete train by ID with success flag
-    public boolean deleteTrain(Long trainId) {
-        if (trainRepository.existsByTrainId(trainId)) {
-            trainRepository.deleteByTrainId(trainId);
-            return true;
+    ///  here i add
+    @Transactional
+    public void reduceSeats(Long trainId, SeatUpdateRequest req) {
+        Train t = repo.findByTrainIdForUpdate(trainId)
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+
+        int seats = req.getSeats();
+        switch (req.getCoachClass()) {
+            case SITTING:
+                validate(t.getClass2S (), seats);
+                t.setClass2S(t.getClass2S() - seats);
+                break;
+            case SL:
+                validate(t.getClassSl(), seats);
+                t.setClassSl(t.getClassSl() - seats);
+                break;
+            case AC3:
+                validate(t.getClass3Ac(), seats);
+                t.setClass3Ac(t.getClass3Ac() - seats);
+                break;
+            case AC2:
+                validate(t.getClass2Ac(), seats);
+                t.setClass2Ac(t.getClass2Ac() - seats);
+                break;
+            case AC1:
+                validate(t.getClass1Ac(), seats);
+                t.setClass1Ac(t.getClass1Ac() - seats);
+                break;
         }
-        return false;
+        t.setAvailableSeats(totalLeft(t));   // sync grand‑total
+        repo.save(t);
+    }
+
+    @Transactional
+    public void increaseSeats(Long trainId, SeatUpdateRequest req) {
+        Train t = repo.findByTrainIdForUpdate(trainId)
+                .orElseThrow(() -> new IllegalArgumentException("Train not found"));
+
+        int seats = req.getSeats();
+        switch (req.getCoachClass()) {
+            case SITTING: t.setClass2S (t.getClass2Ac () + seats); break;
+            case SL:        t.setClassSl (t.getClassSl () + seats); break;
+            case AC3:            t.setClass3Ac(t.getClass3Ac () + seats); break;
+            case AC2:            t.setClass2Ac(t.getClass2Ac() + seats); break;
+            case AC1:            t.setClass1Ac(t.getClass1Ac() + seats); break;
+        }
+        t.setAvailableSeats(totalLeft(t));
+        repo.save(t);
+    }
+
+    private void validate(int available, int requested) {
+        if (available < requested) {
+            throw new SeatUnavailableException ("Seats unavailable in selected class");
+        }
     }
 
 
-    public Train updateTrain(Long trainId, Train updatedTrain) {
-        Train train = trainRepository.findByTrainId (trainId)
-                .orElseThrow(() -> new RuntimeException("Train not found with ID: " + trainId));
-
-        train.setTrainId(updatedTrain.getTrainId());
-        train.setTrainName(updatedTrain.getTrainName());
-        train.setPassengerCapacity(updatedTrain.getPassengerCapacity());
-        train.setTrainType(updatedTrain.getTrainType());
-        train.setSource(updatedTrain.getSource());
-        train.setDestination(updatedTrain.getDestination());
-        train.setTravelDate(updatedTrain.getTravelDate());
-        train.setArrivalTime(updatedTrain.getArrivalTime());
-        train.setDepartureTime(updatedTrain.getDepartureTime());
-        train.setAvailableSeats(updatedTrain.getAvailableSeats());
-        train.setClassSl(updatedTrain.getClassSl());
-        train.setClass3Ac(updatedTrain.getClass3Ac());
-        train.setClass2Ac(updatedTrain.getClass2Ac());
-        train.setRunningDays(updatedTrain.getRunningDays());
-        train.setStatus(updatedTrain.getStatus());
-        train.setFareSl(updatedTrain.getFareSl());
-        train.setFare3Ac(updatedTrain.getFare3Ac());
-        train.setFare2Ac(updatedTrain.getFare2Ac());
-
-        return trainRepository.save(train);
+    private int totalLeft(Train t) {
+        return t.getClass2S () + t.getClassSl() + t.getClass3Ac()
+                + t.getClass2Ac() + t.getClass1Ac();
     }
 
-    // Search by source and destination
-    public List<Train> findBySourceAndDestination(String source, String destination) {
-        return trainRepository.findBySourceAndDestination(source, destination);
-    }
 }
-
