@@ -1,4 +1,4 @@
-package com.saqib.Booking_Service.model;
+package com.saqib.Booking_Service.enums;
 
 public enum SeatPreference {
     WINDOW,

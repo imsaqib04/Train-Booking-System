@@ -1,8 +1,7 @@
 package com.saqib.Booking_Service.dto;
 
-import com.saqib.Booking_Service.BookingStatus;
+import com.saqib.Booking_Service.enums.*;
 import com.saqib.Booking_Service.model.*;
-import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +24,7 @@ public class BookingResponseDto {
     private double totalFare;
     private LocalDateTime bookingTime;
     private BookingStatus status;
-    private CoachType coachType;
+    private CoachClass coachType;
     private LocalDate journeyDate;
     private PaymentStatus paymentStatus;
     private String paymentId;
@@ -93,11 +92,11 @@ public class BookingResponseDto {
         this.status = status;
     }
 
-    public CoachType getCoachType() {
+    public CoachClass getCoachType() {
         return coachType;
     }
 
-    public void setCoachType(CoachType coachType) {
+    public void setCoachType(CoachClass coachType) {
         this.coachType = coachType;
     }
 
@@ -223,6 +222,12 @@ public class BookingResponseDto {
 
     public static BookingResponseDto from(Booking booking) {
         BookingResponseDto dto = new BookingResponseDto();
+        /* ----  ENRICHED FIELDS ---- */
+        dto.setName(booking.getName());
+        dto.setEmail(booking.getEmail());
+        dto.setTrainName(booking.getTrainName());
+        dto.setSource(booking.getSource());
+        dto.setDestination(booking.getDestination());
         dto.setBookingId(booking.getBookingId());
         dto.setUserId(booking.getUserId());
         dto.setTrainId(booking.getTrainId());

@@ -12,6 +12,7 @@ import com.saqib.Booking_Service.model.Passenger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Objects;
 
 public class PdfGenerator {
 
@@ -61,16 +62,49 @@ public class PdfGenerator {
             table.addHeaderCell("Fare");
             table.addHeaderCell("ID Proof");
 
+//            for (Passenger p : booking.getPassengers()) {
+//                table.addCell(p.getName());
+//                table.addCell(String.valueOf(p.getAge()));
+//                table.addCell(p.getGender().toString());
+//                table.addCell((p.getGender()).toString () );
+//                table.addCell(p.getSeatPreference().toString ());
+//                table.addCell(String.format("%.2f", p.getFare()));
+//                table.addCell(p.getIdProofType());
+
+            Paragraph paymentInfo = new Paragraph("Payment Details")
+                    .setFont( pdfDoc.getDefaultFont () )
+                    .setFontSize(14)
+                    .setMarginTop(20);
+
+            Table payTable = new Table(new float[]{200, 300});
+            payTable.addCell("Payment ID");
+            payTable.addCell(booking.getPaymentId() != null ? booking.getPaymentId() : "N/A");
+
+            payTable.addCell("Order ID");
+            payTable.addCell(booking.getPnrNumber());
+
+            payTable.addCell("Payment Status");
+            payTable.addCell(booking.getPaymentStatus().toString());
+
+            payTable.addCell("Payment Date");
+            payTable.addCell(booking.getBookingTime().toString());
+
+
             for (Passenger p : booking.getPassengers()) {
-                table.addCell(p.getName());
-                table.addCell(String.valueOf(p.getAge()));
-                table.addCell(p.getGender().toString());
-                table.addCell(p.getSeatPreference().toString ());
-                table.addCell(String.format("%.2f", p.getFare()));
-                table.addCell(p.getIdProofType());
+                table.addCell( Objects.toString(p.getName(), "") );
+                table.addCell( String.valueOf(p.getAge()) );
+
+                /* ——‑‑ null‑safe cells ‑‑—— */
+                table.addCell( Objects.toString(p.getGender(), "") );          // gender
+                table.addCell( Objects.toString(p.getSeatPreference(), "") );  // seat pref.
+                table.addCell( String.format("%.2f", p.getFare()) );
+                table.addCell( Objects.toString(p.getIdProofType(), "") );     // id proof
             }
 
             document.add(table);
+            document.add(paymentInfo);
+            document.add(payTable);
+
 
 //          document.add(new LineSeparator(new SolidLine(1f)));
             // Create a solid line (this implements ILineDrawer)

@@ -1,4 +1,4 @@
-package com.saqib.Booking_Service;
+package com.saqib.Booking_Service.enums;
 
 public enum BookingStatus {
 

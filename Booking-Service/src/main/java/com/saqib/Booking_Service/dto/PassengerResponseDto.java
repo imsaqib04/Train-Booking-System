@@ -1,7 +1,7 @@
 package com.saqib.Booking_Service.dto;
 
-import com.saqib.Booking_Service.model.Gender;
-import com.saqib.Booking_Service.model.SeatPreference;
+import com.saqib.Booking_Service.enums.Gender;
+import com.saqib.Booking_Service.enums.SeatPreference;
 import lombok.Data;
 
 @Data
@@ -104,7 +104,7 @@ public class PassengerResponseDto {
         dto.setName(p.getName());
         dto.setAge(p.getAge());
         dto.setGender(p.getGender());
-        dto.setSeatNumber(p.getSeatNumber());
+        dto.setSeatNumber(p.getSeatNo ());
         dto.setFare(p.getFare());
         dto.setIdProofType(p.getIdProofType());
         dto.setSeatPreference(p.getSeatPreference());

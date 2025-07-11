@@ -49,26 +49,51 @@ package com.saqib.Booking_Service.feign;
 //}
 
 
+import com.saqib.Booking_Service.dto.SeatUpdateRequest;
 import com.saqib.Booking_Service.dto.TrainDto;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "train-service", url = "http://localhost:8093")
+//@FeignClient(name = "train-service", url = "http://localhost:8093")
+//public interface TrainClient {
+//
+//    @GetMapping("/api/train/{id}/total-seats")
+//    TrainDto getTotalSeats(@PathVariable("id") Long trainId);
+//
+//    @PutMapping("/api/train/{id}/update-seats")
+//    void updateAvailableSeats(@PathVariable("id") Long trainId, @RequestParam("seatsToReduce") int seatsToReduce);
+//
+//    @PutMapping("/api/train/{trainId}/seats/increase")
+//    void increaseAvailableSeats(@PathVariable Long trainId, @RequestParam int seats);
+//
+//    @GetMapping("/api/train/{id}")
+//    TrainDto getTrainById(@PathVariable("id") Long trainId);
+//
+//}
+
+
+@FeignClient(name = "TRAIN-SERVICE", url = "http://localhost:8093")
 public interface TrainClient {
 
-    @GetMapping("/api/train/{id}/total-seats")
-    TrainDto getTotalSeats(@PathVariable("id") Long trainId);
-
-    @PutMapping("/api/train/{id}/update-seats")
-    void updateAvailableSeats(@PathVariable("id") Long trainId, @RequestParam("seatsToReduce") int seatsToReduce);
-
-    @PutMapping("/api/train/{trainId}/seats/increase")
-    void increaseAvailableSeats(@PathVariable Long trainId, @RequestParam int seats);
-
-    @GetMapping("/api/train/{id}")
+    /* ── Basic GET ───────────────────────────────────────────── */
+    @GetMapping("/api/trains/{id}")
     TrainDto getTrainById(@PathVariable("id") Long trainId);
 
+    /* ── Class‑wise seat adjust ──────────────────────────────── */
+    @PostMapping("/api/trains/{id}/seats/reduce")
+    void reduceSeats(@PathVariable("id") Long trainId,
+                     @RequestBody SeatUpdateRequest request);
+
+    @PostMapping("/api/trains/{id}/seats/increase")
+    void increaseSeats(@PathVariable("id") Long trainId,
+                       @RequestBody SeatUpdateRequest request);
+
+    /** TrainClient extra helper */
+    @GetMapping("/api/trains/{id}/station/{name}")
+    Integer getStopNumber(@PathVariable Long id,
+                          @PathVariable String name);
+
+
+
 }
+

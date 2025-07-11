@@ -1,7 +1,8 @@
 package com.saqib.Booking_Service.dto;
 
-import com.saqib.Booking_Service.model.Gender;
-import com.saqib.Booking_Service.model.SeatPreference;
+import com.saqib.Booking_Service.enums.Gender;
+import com.saqib.Booking_Service.enums.SeatPreference;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,16 +18,29 @@ public class PassengerRequestDto {
     @NotNull
     private Gender gender;
 
+    @Column(name = "seat_no")
+    private String seatNo;
+
     private String idProofType;
 
     private SeatPreference seatPreference;
 
-    private Boolean child;
-    private Boolean seniorCitizen;
+    // ✅ Use primitive to avoid null
+    private boolean child;
+    private boolean seniorCitizen;
+
+    public String getSeatNo() {
+        return seatNo;
+    }
+
+    public void setSeatNo(String seatNo) {
+        this.seatNo = seatNo;
+    }
 
     public boolean isChild() {
         return child;
     }
+
     public void setChild(boolean child) {
         this.child = child;
     }
@@ -34,12 +48,12 @@ public class PassengerRequestDto {
     public boolean isSeniorCitizen() {
         return seniorCitizen;
     }
+
     public void setSeniorCitizen(boolean seniorCitizen) {
         this.seniorCitizen = seniorCitizen;
     }
 
-    // Getters, Setters
-
+    // Other Getters & Setters
     public String getName() {
         return name;
     }
@@ -79,5 +93,4 @@ public class PassengerRequestDto {
     public void setSeatPreference(SeatPreference seatPreference) {
         this.seatPreference = seatPreference;
     }
-
-    }
+}

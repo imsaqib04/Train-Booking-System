@@ -1,6 +1,6 @@
 package com.saqib.Booking_Service.booking.utill;
 
-import com.saqib.Booking_Service.model.Gender;
+import com.saqib.Booking_Service.enums.Gender;
 import com.saqib.Booking_Service.model.Passenger;
 import org.springframework.stereotype.Component;
 

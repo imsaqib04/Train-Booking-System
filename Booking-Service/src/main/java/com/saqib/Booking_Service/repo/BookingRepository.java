@@ -1,13 +1,10 @@
 package com.saqib.Booking_Service.repo;
 
-import com.saqib.Booking_Service.BookingStatus;
+import com.saqib.Booking_Service.enums.CoachClass;
 import com.saqib.Booking_Service.model.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,4 +25,24 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findUpcomingJourneys(@Param("today") LocalDate today, @Param("tomorrow") LocalDate tomorrow);
 
     List<Booking> findByUserIdAndTrainIdAndJourneyDate(Long userId, Long trainId, LocalDate journeyDate);
+
+
+    @Query("""
+  SELECT COALESCE(SUM(b.totalSeats), 0)
+  FROM   Booking b
+  WHERE  b.trainId        = :trainId
+     AND b.journeyDate    = :date
+     AND b.coachType      = :coachType
+     AND b.fromStopNumber < :toStop
+     AND b.toStopNumber   > :fromStop
+     AND b.status         = 'CONFIRMED'
+""")
+    Integer segmentSeats(@Param("trainId")   Long       trainId,
+                         @Param("date")      LocalDate   date,
+                         @Param("coachType") CoachClass  coachType,
+                         @Param("fromStop")  int         fromStop,
+                         @Param("toStop")    int         toStop);
+
+    Optional<Booking> findByBookingId(Long bookingId);
+
 }

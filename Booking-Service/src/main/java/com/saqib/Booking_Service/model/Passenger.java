@@ -1,6 +1,8 @@
 package com.saqib.Booking_Service.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.saqib.Booking_Service.enums.Gender;
+import com.saqib.Booking_Service.enums.SeatPreference;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,7 +18,8 @@ public class Passenger {
     @Enumerated(EnumType.STRING)
     private Gender gender; // MALE, FEMALE, OTHER
 
-    private String seatNumber; // Optional if not assigned yet
+    @Column(name = "seat_no", length = 10)       // ✅ add this
+    private String seatNo;
 
     private Double fare;
 
@@ -37,16 +40,17 @@ public class Passenger {
     public Passenger() {
     }
 
-    public Passenger(Long passengerId, String name, Integer age, Gender gender, String seatNumber, Double fare, Boolean isChild, Boolean isSeniorCitizen, String idProofType, String seatPreference, Booking booking) {
+    public Passenger(Long passengerId, String name, Integer age, Gender gender, String seatNo, Double fare, Boolean isChild, Boolean isSeniorCitizen, String idProofType, SeatPreference seatPreference, Booking booking) {
         this.passengerId = passengerId;
         this.name = name;
         this.age = age;
         this.gender = gender;
-        this.seatNumber = seatNumber;
+        this.seatNo = seatNo;
         this.fare = fare;
         this.isChild = isChild;
         this.isSeniorCitizen = isSeniorCitizen;
         this.idProofType = idProofType;
+        this.seatPreference = seatPreference;
         this.booking = booking;
     }
 
@@ -70,6 +74,7 @@ public class Passenger {
         return age;
     }
 
+
     public void setAge(Integer age) {
         this.age = age;
     }
@@ -82,12 +87,12 @@ public class Passenger {
         this.gender = gender;
     }
 
-    public String getSeatNumber() {
-        return seatNumber;
+    public String getSeatNo() {
+        return seatNo;
     }
 
-    public void setSeatNumber(String seatNumber) {
-        this.seatNumber = seatNumber;
+    public void setSeatNo(String seatNo) {
+        this.seatNo = seatNo;
     }
 
     public Double getFare() {

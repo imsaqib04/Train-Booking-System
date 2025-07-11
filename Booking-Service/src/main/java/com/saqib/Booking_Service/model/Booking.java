@@ -1,6 +1,6 @@
 package com.saqib.Booking_Service.model;
 
-import com.saqib.Booking_Service.BookingStatus;
+import com.saqib.Booking_Service.enums.*;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -9,267 +9,190 @@ import java.util.List;
 import java.util.Random;
 
 @Entity
+@Table(name = "booking")   // (optional) explicit table name
 public class Booking {
 
+    /* ──────────────────────────────────
+     *  Core identifiers
+     * ────────────────────────────────── */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
 
-    private String email;
+    private Long userId;     // User‑Service FK
+    private Long trainId;    // Train‑Service FK
+
+    /* ──────────────────────────────────
+     *  Enriched data for quick reads
+     * ────────────────────────────────── */
+    private String name;          // passenger / user name
+    private String email;         // contact e‑mail
     private String trainName;
-    private String Source;
-    private String Destination;
+    private String source;
+    private String destination;
 
-    public String getTrainName() {
-        return trainName;
-    }
-
-    public void setTrainName(String trainName) {
-        this.trainName = trainName;
-    }
-
-    public String getSource() {
-        return Source;
-    }
-
-    public void setSource(String source) {
-        Source = source;
-    }
-
-    public String getDestination() {
-        return Destination;
-    }
-
-    public void setDestination(String destination) {
-        Destination = destination;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    private Long userId;        // From User Service
-    private Long trainId;       // From Train Service
-
+    /* ──────────────────────────────────
+     *  Seats & fare
+     * ────────────────────────────────── */
     private Integer totalSeats;
-    private Double totalFare;
+    private Double  totalFare;
 
+    /* ──────────────────────────────────
+     *  Metadata
+     * ────────────────────────────────── */
     private LocalDateTime bookingTime;
 
     @Enumerated(EnumType.STRING)
-    private BookingStatus status; // CONFIRMED, WAITING, CANCELLED
+    private BookingStatus  status;        // CONFIRMED / WAITING / CANCELLED
 
     @Enumerated(EnumType.STRING)
-    private CoachType coachType;   // SL, 3AC, 2AC
+    private CoachClass     coachType;     // SITTING / SL / AC3 ...
 
     private LocalDate journeyDate;
 
     @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus; // PENDING, SUCCESS, FAILED
+    private PaymentStatus  paymentStatus; // PENDING / SUCCESS / FAILED
 
-    private String paymentId;   // Optional (for online payments)
-
-    @Enumerated(EnumType.STRING)
-    private BookingSource bookingSource; // Web, App, Counter
+    private String paymentId;
 
     @Enumerated(EnumType.STRING)
-    private BookingMode bookingMode;   // Online, Tatkal, General
+    private BookingSource bookingSource;  // WEB / APP / COUNTER
 
-    private String pnrNumber;     // Unique 10-digit identifier
+    @Enumerated(EnumType.STRING)
+    private BookingMode   bookingMode;    // GENERAL / TATKAL
 
+    private String  pnrNumber;            // 10‑digit unique
     private Integer waitingListPosition;
 
-    private String cancellationReason;
-
+    private String  cancellationReason;
     private LocalDateTime cancellationDate;
 
-
-    // OneToMany relationship with passengers
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    /* ──────────────────────────────────
+     *  Relation: passengers
+     * ────────────────────────────────── */
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Passenger> passengers;
 
-
+    /* ──────────────────────────────────
+     *  Lifecycle hooks
+     * ────────────────────────────────── */
     private String generateRandomPNR() {
-        Random random = new Random();
-        return String.format("%010d", random.nextLong() % 1_000_000_0000L);
+        Random rnd = new Random();
+        return String.format("%010d", Math.abs(rnd.nextLong()) % 1_000_000_0000L);
     }
 
     @PrePersist
     public void onCreate() {
         this.bookingTime = LocalDateTime.now();
-        this.pnrNumber = generateRandomPNR();
+        this.pnrNumber   = generateRandomPNR();
+
     }
 
 
-    public Booking() {
+    private Integer fromStopNumber;  // e.g., 3
+    private Integer toStopNumber;    // e.g., 7
+
+    @Column(name = "seat_no")
+    private String seatNo;
+
+    public String getSeatNo() {
+        return seatNo;
     }
 
-    public Booking(Long bookingId, Long userId, Long trainId, Integer totalSeats, Double totalFare, LocalDateTime bookingTime, BookingStatus status, String coachType, LocalDate journeyDate, PaymentStatus paymentStatus, String paymentId, String bookingSource, String bookingMode, String pnrNumber, Integer waitingListPosition, String cancellationReason, LocalDateTime cancellationDate, List<Passenger> passengers) {
-        this.bookingId = bookingId;
-        this.userId = userId;
-        this.trainId = trainId;
-        this.totalSeats = totalSeats;
-        this.totalFare = totalFare;
-//        this.bookingTime = bookingTime;
-        this.status = status;
-        this.journeyDate = journeyDate;
-        this.paymentStatus = paymentStatus;
-        this.paymentId = paymentId;
-//        this.pnrNumber = pnrNumber;
-        this.waitingListPosition = waitingListPosition;
-        this.cancellationReason = cancellationReason;
-        this.cancellationDate = cancellationDate;
-        this.passengers = passengers;
-    }
-// Getters, Setters, Constructors
-
-    public Long getBookingId() {
-        return bookingId;
+    public void setSeatNo(String seatNo) {
+        this.seatNo = seatNo;
     }
 
-    public void setBookingId(Long bookingId) {
-        this.bookingId = bookingId;
+    public Integer getFromStopNumber() {
+        return fromStopNumber;
     }
 
-    public Long getUserId() {
-        return userId;
+    public void setFromStopNumber(Integer fromStopNumber) {
+        this.fromStopNumber = fromStopNumber;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public Integer getToStopNumber() {
+        return toStopNumber;
     }
 
-    public Long getTrainId() {
-        return trainId;
+    public void setToStopNumber(Integer toStopNumber) {
+        this.toStopNumber = toStopNumber;
     }
 
-    public void setTrainId(Long trainId) {
-        this.trainId = trainId;
-    }
+    /* ──────────────────────────────────
+     *  Constructors
+     * ────────────────────────────────── */
+    public Booking() { }
 
-    public Integer getTotalSeats() {
-        return totalSeats;
-    }
+    /* ──────────────────────────────────
+     *  Getters & Setters
+     * ────────────────────────────────── */
+    public Long getBookingId()                { return bookingId; }
+    public void setBookingId(Long bookingId)  { this.bookingId = bookingId; }
 
-    public void setTotalSeats(Integer totalSeats) {
-        this.totalSeats = totalSeats;
-    }
+    public Long getUserId()                   { return userId; }
+    public void setUserId(Long userId)        { this.userId = userId; }
 
-    public Double getTotalFare() {
-        return totalFare;
-    }
+    public Long getTrainId()                  { return trainId; }
+    public void setTrainId(Long trainId)      { this.trainId = trainId; }
 
-    public void setTotalFare(Double totalFare) {
-        this.totalFare = totalFare;
-    }
+    public String getName()                   { return name; }
+    public void setName(String name)          { this.name = name; }
 
-    public LocalDateTime getBookingTime() {
-        return bookingTime;
-    }
+    public String getEmail()                  { return email; }
+    public void setEmail(String email)        { this.email = email; }
 
-    public void setBookingTime(LocalDateTime bookingTime) {
-        this.bookingTime = bookingTime;
-    }
+    public String getTrainName()              { return trainName; }
+    public void setTrainName(String trainName){ this.trainName = trainName; }
 
-    public BookingStatus getStatus() {
-        return status;
-    }
+    public String getSource()                 { return source; }
+    public void setSource(String source)      { this.source = source; }
 
-    public void setStatus(BookingStatus status) {
-        this.status = status;
-    }
+    public String getDestination()            { return destination; }
+    public void setDestination(String destination){ this.destination = destination; }
 
+    public Integer getTotalSeats()            { return totalSeats; }
+    public void setTotalSeats(Integer seats)  { this.totalSeats = seats; }
 
+    public Double getTotalFare()              { return totalFare; }
+    public void setTotalFare(Double fare)     { this.totalFare = fare; }
 
-    public LocalDate getJourneyDate() {
-        return journeyDate;
-    }
+    public LocalDateTime getBookingTime()     { return bookingTime; }
+    public void setBookingTime(LocalDateTime t){ this.bookingTime = t; }
 
-    public void setJourneyDate(LocalDate journeyDate) {
-        this.journeyDate = journeyDate;
-    }
+    public BookingStatus getStatus()          { return status; }
+    public void setStatus(BookingStatus st)   { this.status = st; }
 
-    public PaymentStatus getPaymentStatus() {
-        return paymentStatus;
-    }
+    public CoachClass getCoachType()          { return coachType; }
+    public void setCoachType(CoachClass c)    { this.coachType = c; }
 
-    public void setPaymentStatus(PaymentStatus paymentStatus) {
-        this.paymentStatus = paymentStatus;
-    }
+    public LocalDate getJourneyDate()         { return journeyDate; }
+    public void setJourneyDate(LocalDate d)   { this.journeyDate = d; }
 
-    public String getPaymentId() {
-        return paymentId;
-    }
+    public PaymentStatus getPaymentStatus()   { return paymentStatus; }
+    public void setPaymentStatus(PaymentStatus p){ this.paymentStatus = p; }
 
-    public void setPaymentId(String paymentId) {
-        this.paymentId = paymentId;
-    }
+    public String getPaymentId()              { return paymentId; }
+    public void setPaymentId(String id)       { this.paymentId = id; }
 
-    public String getPnrNumber() {
-        return pnrNumber;
-    }
+    public BookingSource getBookingSource()   { return bookingSource; }
+    public void setBookingSource(BookingSource s){ this.bookingSource = s; }
 
-    public void setPnrNumber(String pnrNumber) {
-        this.pnrNumber = pnrNumber;
-    }
+    public BookingMode getBookingMode()       { return bookingMode; }
+    public void setBookingMode(BookingMode m) { this.bookingMode = m; }
 
-    public Integer getWaitingListPosition() {
-        return waitingListPosition;
-    }
+    public String getPnrNumber()              { return pnrNumber; }
+    public void setPnrNumber(String pnr)      { this.pnrNumber = pnr; }
 
-    public void setWaitingListPosition(Integer waitingListPosition) {
-        this.waitingListPosition = waitingListPosition;
-    }
+    public Integer getWaitingListPosition()   { return waitingListPosition; }
+    public void setWaitingListPosition(Integer w){ this.waitingListPosition = w; }
 
-    public String getCancellationReason() {
-        return cancellationReason;
-    }
+    public String getCancellationReason()     { return cancellationReason; }
+    public void setCancellationReason(String r){ this.cancellationReason = r; }
 
-    public void setCancellationReason(String cancellationReason) {
-        this.cancellationReason = cancellationReason;
-    }
+    public LocalDateTime getCancellationDate(){ return cancellationDate; }
+    public void setCancellationDate(LocalDateTime d){ this.cancellationDate = d; }
 
-    public LocalDateTime getCancellationDate() {
-        return cancellationDate;
-    }
-
-    public void setCancellationDate(LocalDateTime cancellationDate) {
-        this.cancellationDate = cancellationDate;
-    }
-
-    public List<Passenger> getPassengers() {
-        return passengers;
-    }
-
-    public void setPassengers(List<Passenger> passengers) {
-        this.passengers = passengers;
-    }
-
-    public CoachType getCoachType() {
-        return coachType;
-    }
-
-    public void setCoachType(CoachType coachType) {
-        this.coachType = coachType;
-    }
-
-    public BookingSource getBookingSource() {
-        return bookingSource;
-    }
-
-    public void setBookingSource(BookingSource bookingSource) {
-        this.bookingSource = bookingSource;
-    }
-
-    public BookingMode getBookingMode() {
-        return bookingMode;
-    }
-
-    public void setBookingMode(BookingMode bookingMode) {
-        this.bookingMode = bookingMode;
-    }
+    public List<Passenger> getPassengers()    { return passengers; }
+    public void setPassengers(List<Passenger> p){ this.passengers = p; }
 }

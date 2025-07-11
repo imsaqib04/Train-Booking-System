@@ -2,6 +2,7 @@ package com.saqib.Booking_Service.dto;
 
 import java.time.LocalDate;
 
+
 public class UserResponseDto {
 
     private Long id;
@@ -10,37 +11,46 @@ public class UserResponseDto {
     private String phoneNumber;
     private String gender;
     private LocalDate dateOfBirth;
+    private String address;
     private String city;
     private String state;
+    private Integer pinCode;
 
-    // Optional (only if you want to show in invoice or ticket)
+    /* Optional – shown on ticket / invoice */
     private String profileImageUrl;
 
-    // Getters & Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    /* ───────── Getters & Setters ───────── */
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public Long getId()               { return id; }
+    public void setId(Long id)        { this.id = id; }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getFullName()       { return fullName; }
+    public void setFullName(String n) { this.fullName = n; }
 
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+    public String getEmail()          { return email; }
+    public void setEmail(String e)    { this.email = e; }
 
-    public String getGender() { return gender; }
-    public void setGender(String gender) { this.gender = gender; }
+    public String getPhoneNumber()    { return phoneNumber; }
+    public void setPhoneNumber(String p){ this.phoneNumber = p; }
+
+    public String getGender()         { return gender; }
+    public void setGender(String g)   { this.gender = g; }
 
     public LocalDate getDateOfBirth() { return dateOfBirth; }
-    public void setDateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public void setDateOfBirth(LocalDate d){ this.dateOfBirth = d; }
 
-    public String getCity() { return city; }
-    public void setCity(String city) { this.city = city; }
+    public String getAddress()        { return address; }
+    public void setAddress(String a)  { this.address = a; }
 
-    public String getState() { return state; }
-    public void setState(String state) { this.state = state; }
+    public String getCity()           { return city; }
+    public void setCity(String c)     { this.city = c; }
 
-    public String getProfileImageUrl() { return profileImageUrl; }
-    public void setProfileImageUrl(String profileImageUrl) { this.profileImageUrl = profileImageUrl; }
+    public String getState()          { return state; }
+    public void setState(String s)    { this.state = s; }
+
+    public Integer getPinCode()       { return pinCode; }
+    public void setPinCode(Integer p) { this.pinCode = p; }
+
+    public String getProfileImageUrl(){ return profileImageUrl; }
+    public void setProfileImageUrl(String u){ this.profileImageUrl = u; }
 }

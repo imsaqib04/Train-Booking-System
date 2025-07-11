@@ -1,9 +1,13 @@
 package com.saqib.Booking_Service.dto;
 
-
 public class PaymentInfoDto {
     private String paymentId;
-    // + getters / setters
+
+    public PaymentInfoDto() { }
+
+    public PaymentInfoDto(String paymentId) {
+        this.paymentId = paymentId;
+    }
 
     public String getPaymentId() {
         return paymentId;

@@ -1,4 +1,4 @@
-package com.saqib.Booking_Service.model;
+package com.saqib.Payment_Service.enums;
 
 public enum PaymentStatus {
     PENDING,
