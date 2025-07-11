@@ -17,5 +17,14 @@ public interface IntermediateStationRepository extends JpaRepository<Intermediat
             "from IntermediateStation s " +
             "where s.train.trainId = :tid")
     Optional<Integer> maxStopNumberByTrain(@Param("tid") Long trainId);
-}
+
+
+        @Query("""
+        SELECT s.stopNumber
+        FROM   IntermediateStation s
+        WHERE  s.train.trainId   = :trainId
+          AND  LOWER(s.stationName) = LOWER(:name)
+    """)
+        Optional<Integer> findStopNumber(Long trainId, String name);
+    }
 

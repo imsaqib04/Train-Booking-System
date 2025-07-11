@@ -14,13 +14,21 @@ public class IntermediateStation {
 
     private String stationName;
 
+    @Column(name = "arrival_time")
     private LocalTime arrivalTime;
+
+    @Column(name = "departure_time")
     private LocalTime departureTime;
 
     private int stopNumber;  // order of stop
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "train_id")
+        @ManyToOne(fetch = FetchType.LAZY)
+        @JoinColumn(name = "train_id",
+        referencedColumnName = "train_id",   // ⬅  points to natural key
+        nullable = false)
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "train_id")
     private Train train;
 
     public IntermediateStation() {}

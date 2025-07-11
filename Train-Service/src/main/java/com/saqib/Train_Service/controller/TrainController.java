@@ -8,6 +8,7 @@ import com.saqib.Train_Service.dto.TrainResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,52 +24,66 @@ public class TrainController {
 
     // ────────────────────────────── CRUD ──────────────────────────────
 
-    /** Create one train */
+    /**
+     * Create one train
+     */
     @PostMapping("/addTrain")
     public ResponseEntity<TrainResponseDTO> create(@Valid @RequestBody TrainRequestDTO dto) {
-        return ResponseEntity.ok(trainService.create(dto));
+        return ResponseEntity.ok ( trainService.create ( dto ) );
     }
 
-    /** Bulk create */
+    /**
+     * Bulk create
+     */
     @PostMapping("/batch")
     public ResponseEntity<List<TrainResponseDTO>> createBatch(
             @Valid @RequestBody List<TrainRequestDTO> dtoList) {
-        return ResponseEntity.ok(trainService.createBatch(dtoList));
+        return ResponseEntity.ok ( trainService.createBatch ( dtoList ) );
     }
 
-    /** Get all (paginated optional) */
+    /**
+     * Get all (paginated optional)
+     */
     @GetMapping("/getAll")
     public ResponseEntity<List<TrainResponseDTO>> getAll() {
-        return ResponseEntity.ok(trainService.getAll());
+        return ResponseEntity.ok ( trainService.getAll () );
     }
 
-    /** Get single by trainId */
+    /**
+     * Get single by trainId
+     */
     @GetMapping("/{trainId}")
     public ResponseEntity<TrainResponseDTO> getOne(@PathVariable Long trainId) {
-        return ResponseEntity.ok(trainService.getOne(trainId));
+        return ResponseEntity.ok ( trainService.getOne ( trainId ) );
     }
 
-    /** Update */
+    /**
+     * Update
+     */
     @PutMapping("/{trainId}")
     public ResponseEntity<TrainResponseDTO> update(
             @PathVariable Long trainId,
             @Valid @RequestBody TrainRequestDTO dto) {
-        return ResponseEntity.ok(trainService.update(trainId, dto));
+        return ResponseEntity.ok ( trainService.update ( trainId, dto ) );
     }
 
-    /** Delete */
+    /**
+     * Delete
+     */
     @DeleteMapping("/{trainId}")
     public ResponseEntity<Void> delete(@PathVariable Long trainId) {
-        trainService.delete(trainId);
-        return ResponseEntity.noContent().build();
+        trainService.delete ( trainId );
+        return ResponseEntity.noContent ().build ();
     }
 
     // ─────────────────────── Business‑specific Endpoints ───────────────────────
 
-    /** Seats left / capacity */
+    /**
+     * Seats left / capacity
+     */
     @GetMapping("/{trainId}/total-seats")
     public ResponseEntity<Integer> totalSeats(@PathVariable Long trainId) {
-        return ResponseEntity.ok(trainService.getTotalSeats(trainId));
+        return ResponseEntity.ok ( trainService.getTotalSeats ( trainId ) );
     }
 //
 //    /** Reduce seats atomically (booking) */
@@ -89,44 +104,54 @@ public class TrainController {
 //        return ResponseEntity.ok().build();
 //    }
 
-    /** Search by name */
+    /**
+     * Search by name
+     */
     @GetMapping("/by-name")
     public ResponseEntity<List<TrainResponseDTO>> byName(@RequestParam String name) {
-        return ResponseEntity.ok(trainService.findByName(name));
+        return ResponseEntity.ok ( trainService.findByName ( name ) );
     }
 
-    /** Search by source & destination */
+    /**
+     * Search by source & destination
+     */
     @GetMapping("/by-route")
     public ResponseEntity<List<TrainResponseDTO>> byRoute(
             @RequestParam String source,
             @RequestParam String destination) {
-        return ResponseEntity.ok(trainService.findByRoute(source, destination));
+        return ResponseEntity.ok ( trainService.findByRoute ( source, destination ) );
     }
 
 
-    /** Get live available‑seat snapshot */
+    /**
+     * Get live available‑seat snapshot
+     */
     @GetMapping("/{trainId}/available-seats")
     public ResponseEntity<AvailableSeatsDTO> available(@PathVariable Long trainId) {
-        return ResponseEntity.ok(trainService.getAvailableSeats(trainId));
+        return ResponseEntity.ok ( trainService.getAvailableSeats ( trainId ) );
     }
 
     /* reduce seats */
-    @PatchMapping("/{trainId}/seats/reduce")
+    @PostMapping("/{trainId}/seats/reduce")
     public ResponseEntity<Void> reduce(
             @PathVariable Long trainId,
             @Valid @RequestBody SeatUpdateRequest req) {
-        trainService.reduceSeats(trainId, req);
-        return ResponseEntity.ok().build();
+        trainService.reduceSeats ( trainId, req );
+        return ResponseEntity.ok ().build ();
     }
 
     /* increase seats */
-    @PatchMapping("/{trainId}/seats/increase")
+    @PostMapping("/{trainId}/seats/increase")
     public ResponseEntity<Void> increase(
             @PathVariable Long trainId,
             @Valid @RequestBody SeatUpdateRequest req) {
-        trainService.increaseSeats(trainId, req);
-        return ResponseEntity.ok().build();
+        trainService.increaseSeats ( trainId, req );
+        return ResponseEntity.ok ().build ();
     }
 
-
+    @GetMapping("/{trainId}/station/{name}")
+    public Integer stopNumber(@PathVariable Long trainId,
+                              @PathVariable String name) {
+        return trainService.stopNumber ( trainId, name );
+    }
 }

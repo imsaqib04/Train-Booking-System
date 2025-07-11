@@ -24,11 +24,12 @@ import java.util.List;
      public void setDistanceInKm(Integer distanceInKm) { this.distanceInKm = distanceInKm; }
 
 
-     @Id
-     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     private Long id;
+//     @Id
+//     @GeneratedValue(strategy = GenerationType.IDENTITY)
+//     private Long id;
 
-     @Column(unique = true, nullable = false)
+     @Id
+     @Column(name = "train_id", unique = true, nullable = false)
      private Long trainId;
      private String trainName;
 
@@ -67,43 +68,35 @@ import java.util.List;
      private LocalTime departureTime;
 
 
-     private int class2S;          // 1 for true available
-     private int classSl;          // 0 for false Unavailable
-     private int class3Ac;
-     private int class2Ac;
-     private int class1Ac;
+
+//     private int class2S;          // 1 for true available
+//     private int classSl;          // 0 for false Unavailable
+//     private int class3Ac;
+//     private int class2Ac;
+//     private int class1Ac;
+
+     @Column(name = "seats_2s")   // optional: map to DB column
+     private int seats2S;
+
+     @Column(name = "seats_sl")
+     private int seatsSl;
+
+     @Column(name = "seats_3ac")
+     private int seats3Ac;
+
+     @Column(name = "seats_2ac")
+     private int seats2Ac;
+
+     @Column(name = "seats_1ac")
+     private int seats1Ac;
+
 
      private String runningDays;
 
      public Train() {
      }
 
-     public Train(Long id, Long trainId, String trainName, int passengerCapacity, String trainType, String source, String destination, LocalDate travelDate, LocalTime arrivalTime, LocalTime departureTime, int availableSeats, int class2S, int classSl, int class3Ac, int class2Ac, int class1Ac, String runningDays, String status, double fare2S, double fareSl, double fare3Ac, double fare2Ac, double fare1Ac) {
-         this.id = id;
-         this.trainId = trainId;
-         this.trainName = trainName;
-         this.passengerCapacity = passengerCapacity;
-         this.source = source;
-         this.destination = destination;
-         this.travelDate = travelDate;
-         this.arrivalTime = arrivalTime;
-         this.departureTime = departureTime;
-         this.availableSeats = availableSeats;
-         this.class2S = class2S;
-         this.classSl = classSl;
-         this.class3Ac = class3Ac;
-         this.class2Ac = class2Ac;
-         this.class1Ac = class1Ac;
-         this.runningDays = runningDays;
-     }
 
-     public Long getId() {
-         return id;
-     }
-
-     public void setId(Long id) {
-         this.id = id;
-     }
 
      public Long getTrainId() {
          return trainId;
@@ -177,44 +170,45 @@ import java.util.List;
          this.availableSeats = availableSeats;
      }
 
-     public int getClass2S() {
-         return class2S;
+
+     public int getSeats2S() {
+         return seats2S;
      }
 
-     public void setClass2S(int class2S) {
-         this.class2S = class2S;
+     public void setSeats2S(int seats2S) {
+         this.seats2S = seats2S;
      }
 
-     public int getClassSl() {
-         return classSl;
+     public int getSeatsSl() {
+         return seatsSl;
      }
 
-     public void setClassSl(int classSl) {
-         this.classSl = classSl;
+     public void setSeatsSl(int seatsSl) {
+         this.seatsSl = seatsSl;
      }
 
-     public int getClass3Ac() {
-         return class3Ac;
+     public int getSeats3Ac() {
+         return seats3Ac;
      }
 
-     public void setClass3Ac(int class3Ac) {
-         this.class3Ac = class3Ac;
+     public void setSeats3Ac(int seats3Ac) {
+         this.seats3Ac = seats3Ac;
      }
 
-     public int getClass2Ac() {
-         return class2Ac;
+     public int getSeats2Ac() {
+         return seats2Ac;
      }
 
-     public void setClass2Ac(int class2Ac) {
-         this.class2Ac = class2Ac;
+     public void setSeats2Ac(int seats2Ac) {
+         this.seats2Ac = seats2Ac;
      }
 
-     public int getClass1Ac() {
-         return class1Ac;
+     public int getSeats1Ac() {
+         return seats1Ac;
      }
 
-     public void setClass1Ac(int class1Ac) {
-         this.class1Ac = class1Ac;
+     public void setSeats1Ac(int seats1Ac) {
+         this.seats1Ac = seats1Ac;
      }
 
      public String getRunningDays() {

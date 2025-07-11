@@ -31,6 +31,18 @@ public interface TrainRepository extends JpaRepository<Train,Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select t from Train t where t.trainId = :trainId")
     Optional<Train> findByTrainIdForUpdate(@Param("trainId") Long trainId);
+
+    @Query("""
+    SELECT s.stopNumber FROM IntermediateStation s
+    WHERE s.train.id = :trainPk
+      AND LOWER(TRIM(s.stationName)) = LOWER(TRIM(:station))
+""")
+    Optional<Integer> findStopNumber(@Param("trainPk") Long trainPk,
+                                     @Param("station") String station);
+
+    @Query("SELECT t.id FROM Train t WHERE t.trainId = :trainId")
+    Optional<Long> findPkByTrainId(@Param("trainId") Long trainId);
+
 }
 
 

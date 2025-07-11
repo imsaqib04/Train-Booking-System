@@ -36,11 +36,11 @@ public class TrainMapper {
         train.setDepartureTime(dto.getDepartureTime());
         train.setAvailableSeats(dto.getAvailableSeats());
 
-        train.setClass2S(dto.getClass2S());
-        train.setClassSl(dto.getClassSl());
-        train.setClass3Ac(dto.getClass3Ac());
-        train.setClass2Ac(dto.getClass2Ac());
-        train.setClass1Ac(dto.getClass1Ac());
+        train.setSeats2S (dto.getSeats2S ());
+        train.setSeatsSl (dto.getSeatsSl ());
+        train.setSeats3Ac (dto.getSeats3Ac ());
+        train.setSeats2Ac(dto.getSeats2Ac ());
+        train.setSeats1Ac(dto.getSeats1Ac ());
 
         train.setRunningDays(dto.getRunningDays());
         train.setStatus(dto.getStatus());
@@ -62,7 +62,7 @@ public class TrainMapper {
         if (train == null) return null;
 
         TrainResponseDTO dto = new TrainResponseDTO();
-        dto.setId(train.getId());
+//        dto.setId(train.getId());
         dto.setTrainId(train.getTrainId());
         dto.setTrainName(train.getTrainName());
         dto.setPassengerCapacity(train.getPassengerCapacity());
@@ -74,11 +74,11 @@ public class TrainMapper {
         dto.setDepartureTime(train.getDepartureTime());
         dto.setAvailableSeats(train.getAvailableSeats());
 
-        dto.setClass2S(train.getClass2S());
-        dto.setClassSl(train.getClassSl());
-        dto.setClass3Ac(train.getClass3Ac());
-        dto.setClass2Ac(train.getClass2Ac());
-        dto.setClass1Ac(train.getClass1Ac());
+        dto.setClass2S(train.getSeats2S ());
+        dto.setClassSl(train.getSeatsSl());
+        dto.setClass3Ac(train.getSeats3Ac());
+        dto.setClass2Ac(train.getSeats2Ac());
+        dto.setClass1Ac(train.getSeats1Ac());
 
         dto.setRunningDays(train.getRunningDays());
         dto.setStatus( TrainStatus.valueOf ( train.getStatus() ) );

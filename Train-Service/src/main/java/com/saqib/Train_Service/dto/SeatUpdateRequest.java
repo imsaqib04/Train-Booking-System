@@ -1,11 +1,13 @@
 package com.saqib.Train_Service.dto;
 
 import com.saqib.Train_Service.enums.CoachClass;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public class SeatUpdateRequest {
 
+    @Column(name="coach_type", length = 10)
     @NotNull
     private CoachClass coachClass;  // e.g., SLEEPER
 
