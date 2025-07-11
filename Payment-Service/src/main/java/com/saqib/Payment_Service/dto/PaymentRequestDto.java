@@ -1,10 +1,37 @@
 package com.saqib.Payment_Service.dto;
 
 public class PaymentRequestDto {
-    private int amount;        // rupees
-    private String currency;   // e.g. "INR"
-    private String receipt;    // optional reference
-    // getters & setters
+    /** Either one (or both) must be supplied */
+    private Long   bookingId;
+    private String pnr;
+
+    private int    amount;
+    private String currency = "INR";
+    private String receipt;   // optional
+    /* getters / setters */
+
+
+    public PaymentRequestDto(Long bookingId, String pnr, String currency) {
+        this.bookingId = bookingId;
+        this.pnr = pnr;
+        this.currency = currency;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public String getPnr() {
+        return pnr;
+    }
+
+    public void setPnr(String pnr) {
+        this.pnr = pnr;
+    }
 
     public int getAmount() {
         return amount;
@@ -29,4 +56,7 @@ public class PaymentRequestDto {
     public void setReceipt(String receipt) {
         this.receipt = receipt;
     }
+
+    public boolean hasBookingId() { return bookingId != null; }
+    public boolean hasPnr()       { return pnr != null && !pnr.isBlank(); }
 }

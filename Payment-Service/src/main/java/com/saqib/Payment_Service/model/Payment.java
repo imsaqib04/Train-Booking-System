@@ -1,5 +1,7 @@
 package com.saqib.Payment_Service.model;
 
+import com.saqib.Payment_Service.enums.PaymentStatus;
+import com.saqib.Payment_Service.enums.PaymentStatus1;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -12,6 +14,11 @@ public class Payment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Long bookingId;
+
+
+    private String pnrNumber;
 
     @Column(nullable = false, unique = true)
     private String orderId;
@@ -26,15 +33,18 @@ public class Payment {
     private String currency;
 
     @Enumerated(EnumType.STRING)
-    private PaymentStatus status = PaymentStatus.CREATED;
+    private PaymentStatus1 status = PaymentStatus1.CREATED;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;
 
     // getters & setters (or Lombok @Data if you like)
 
-    public Payment(Long id, String orderId, String paymentId, String receipt, BigDecimal amount, String currency, PaymentStatus status, LocalDateTime createdAt, LocalDateTime updatedAt) {
+
+    public Payment(Long id, Long bookingId, String pnrNumber, String orderId, String paymentId, String receipt, BigDecimal amount, String currency, PaymentStatus1 status, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
+        this.bookingId = bookingId;
+        this.pnrNumber = pnrNumber;
         this.orderId = orderId;
         this.paymentId = paymentId;
         this.receipt = receipt;
@@ -97,11 +107,11 @@ public class Payment {
         this.currency = currency;
     }
 
-    public PaymentStatus getStatus() {
+    public PaymentStatus1 getStatus() {
         return status;
     }
 
-    public void setStatus(PaymentStatus status) {
+    public void setStatus(PaymentStatus1 status) {
         this.status = status;
     }
 
@@ -119,5 +129,21 @@ public class Payment {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public String getPnrNumber() {
+        return pnrNumber;
+    }
+
+    public void setPnrNumber(String pnrNumber) {
+        this.pnrNumber = pnrNumber;
     }
 }
