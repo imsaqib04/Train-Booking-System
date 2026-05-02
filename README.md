@@ -182,6 +182,9 @@ Client → API Gateway → Microservices
          Discovery Server (Eureka)
 ```
 
+# ScreenShots
+<img width="1890" height="951" alt="image" src="https://github.com/user-attachments/assets/86471617-b6ad-437c-8ca8-9115000c2386" />
+
 ---
 
 ## 🧠 Key Concepts Implemented
